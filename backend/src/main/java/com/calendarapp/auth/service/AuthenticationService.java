@@ -24,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -52,16 +51,10 @@ public class AuthenticationService {
     if (optGroup.isPresent()) {
       group = optGroup.get();
     } else {
-      group = new Group();
-      group.setPasscode(registerRequest.getGroupPasscode());
-      group.setUsers(new ArrayList<>());
-      group.setTasks(new ArrayList<>());
-      group.setDailyTasks(new ArrayList<>());
-      group.setEvents(new ArrayList<>());
+      group = new Group(registerRequest.getGroupPasscode());
       group = groupRepository.save(group);
     }
     user.setGroup(group);
-    group.getUsers().add(user);
 
     var savedUser = userRepository.save(user);
     var jwtToken = jwtService.generateToken(user);
@@ -76,12 +69,12 @@ public class AuthenticationService {
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
     authenticationManager.authenticate(
               new UsernamePasswordAuthenticationToken(
-                      request.getEmail(),
+                      request.getLogin(),
                       request.getPassword()
               )
     );
 
-    var user = userRepository.findByLogin(request.getEmail())
+    var user = userRepository.findByLogin(request.getLogin())
         .orElseThrow();
     var jwtToken = jwtService.generateToken(user);
     var refreshToken = jwtService.generateRefreshToken(user);

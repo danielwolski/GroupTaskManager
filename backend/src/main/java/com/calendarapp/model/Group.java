@@ -11,12 +11,15 @@ import jakarta.persistence.GenerationType;
 
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @Entity
 @Table(name = "groups")
+@NoArgsConstructor
 public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,8 +38,12 @@ public class Group {
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Event> events;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<User> users;
+    public Group(String passcode) {
+        this.passcode = passcode;
+        this.tasks = new ArrayList<>();
+        this.dailyTasks = new ArrayList<>();
+        this.events = new ArrayList<>();
+    }
 
     @Override
     public String toString() {
