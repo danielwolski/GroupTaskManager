@@ -13,20 +13,27 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
+	private final UserRepository userRepository;
 
-    public Group getCurrentUserGroup() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+	public Group getCurrentUserGroup() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String email = authentication.getName();
 
-        User user = userRepository.findByLogin(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Group group = user.getGroup();
+		User user = userRepository.findByLogin(email)
+				.orElseThrow(() -> new RuntimeException("User not found"));
+		Group group = user.getGroup();
 
-        if (group != null) {
-            return group;
-        } else {
-            throw new UserWithoutGroupException("User " + email + " does not belong to any group");
-        }
-    }
+		if (group != null) {
+			return group;
+		} else {
+			throw new UserWithoutGroupException("User " + email + " does not belong to any group");
+		}
+	}
+
+	public User getCurrentUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String email = authentication.getName();
+		return userRepository.findByLogin(email)
+				.orElseThrow(() -> new RuntimeException("User not found"));
+	}
 }

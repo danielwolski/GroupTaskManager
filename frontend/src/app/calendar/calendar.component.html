@@ -23,7 +23,7 @@
       <div class="day-number">{{ day.getDate() }}</div>
       <div class="events">
         <div class="event" *ngFor="let event of getEventsForDay(day)">
-          {{  event.title }}
+          {{  event.title }} ({{ event.createdBy }})
         </div>
       </div>
 

@@ -11,9 +11,14 @@ import com.calendarapp.rest.task.RestTask;
 
 @Mapper(componentModel = "spring")
 public interface TaskMapper {
-    
-    @Mapping(target = "id", ignore = true)
-    Task restCreateTaskToTask(RestCreateTask restTask);
+	
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "createdBy", ignore = true)
+	@Mapping(target = "group", ignore = true)
+	@Mapping(target = "done", ignore = true)
+	Task restCreateTaskToTask(RestCreateTask restTask);
 
-    List<RestTask> taskListToTaskRestList(List<Task> taskList);
+	@Mapping(target = "createdBy", source = "createdBy.login")
+	RestTask taskToRestTask(Task task);
+	List<RestTask> taskListToTaskRestList(List<Task> taskList);
 }

@@ -19,28 +19,29 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @AllArgsConstructor
 public class TaskService {
-    private final TaskMapper taskMapper;
-    private final TaskRepository taskRepository;
-    private final UserService userService;
+	private final TaskMapper taskMapper;
+	private final TaskRepository taskRepository;
+	private final UserService userService;
 
-    public Task createTask(RestCreateTask restTask) {
-        Task task = taskMapper.restCreateTaskToTask(restTask);
-        task.setGroup(userService.getCurrentUserGroup());
-        Task savedTask = taskRepository.save(task);
-        log.info("Task saved: {}", savedTask);
-        return savedTask;
-    }
+	public Task createTask(RestCreateTask restTask) {
+		Task task = taskMapper.restCreateTaskToTask(restTask);
+		task.setGroup(userService.getCurrentUserGroup());
+		task.setCreatedBy(userService.getCurrentUser());
+		Task savedTask = taskRepository.save(task);
+		log.info("Task saved: {}", savedTask);
+		return savedTask;
+	}
 
-    public List<RestTask> getAllTasksForGroup() {
-        Group currentUserGroup = userService.getCurrentUserGroup();
-        return taskMapper.taskListToTaskRestList(taskRepository.findAllByGroup(currentUserGroup));
-    }
+	public List<RestTask> getAllTasksForGroup() {
+		Group currentUserGroup = userService.getCurrentUserGroup();
+		return taskMapper.taskListToTaskRestList(taskRepository.findAllByGroup(currentUserGroup));
+	}
 
-    public void deleteTask(Long id) {
-        taskRepository.deleteById(id);
-    }
+	public void deleteTask(Long id) {
+		taskRepository.deleteById(id);
+	}
 
-    public void toggleIsDone(Long id) {
-        taskRepository.toggleIsDone(id);
-    }
+	public void toggleIsDone(Long id) {
+		taskRepository.toggleIsDone(id);
+	}
 }

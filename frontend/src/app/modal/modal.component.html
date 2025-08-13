@@ -20,7 +20,7 @@
       <tbody>
         <tr *ngFor="let event of eventDetails; let i = index">
           <td>{{ i + 1 }}</td>
-          <td>{{ event.title }}</td>
+          <td>{{ event.title }} ({{ event.createdBy }})</td>
           <td>{{ getTime(event.startTime) }}</td>
           <td>{{ getTime(event.endTime) }}</td>
           <td>{{ event.description }}</td>

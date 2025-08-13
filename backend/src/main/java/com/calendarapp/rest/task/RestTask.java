@@ -6,7 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RestTask {
-    private Long id;
-    private boolean done;
-    private String description;
+	private Long id;
+	private boolean done;
+	private String description;
+	private String createdBy;
 }

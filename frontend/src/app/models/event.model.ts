@@ -3,6 +3,7 @@ export interface Event {
     title: string;
     startTime: string;
     endTime: string;
+    createdBy: string;
 }
 
 export interface EventDetails {
@@ -11,6 +12,7 @@ export interface EventDetails {
   startTime: string;
   endTime: string;
   description: string;
+  createdBy: string;
 }
 
 export interface CreateEventRequest {

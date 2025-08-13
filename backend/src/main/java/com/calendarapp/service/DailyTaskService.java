@@ -18,28 +18,29 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @AllArgsConstructor
 public class DailyTaskService {
-    private final DailyTaskMapper dailyTaskMapper;
-    private final DailyTaskRepository dailyTaskRepository;
-    private final UserService userService;
+	private final DailyTaskMapper dailyTaskMapper;
+	private final DailyTaskRepository dailyTaskRepository;
+	private final UserService userService;
 
-    public DailyTask createDailyTask(RestCreateDailyTask restDailyTask) {
-        DailyTask dailyTask = dailyTaskMapper.restCreateDailyTaskToDailyTask(restDailyTask);
-        dailyTask.setGroup(userService.getCurrentUserGroup());
-        DailyTask savedDailyTask = dailyTaskRepository.save(dailyTask);
-        log.info("Daily task saved: {}", savedDailyTask);
-        return savedDailyTask;
-    }
+	public DailyTask createDailyTask(RestCreateDailyTask restDailyTask) {
+		DailyTask dailyTask = dailyTaskMapper.restCreateDailyTaskToDailyTask(restDailyTask);
+		dailyTask.setGroup(userService.getCurrentUserGroup());
+		dailyTask.setCreatedBy(userService.getCurrentUser());
+		DailyTask savedDailyTask = dailyTaskRepository.save(dailyTask);
+		log.info("Daily task saved: {}", savedDailyTask);
+		return savedDailyTask;
+	}
 
-    public List<RestDailyTask> getAllTasksForGroup() {
-        Group currentUserGroup = userService.getCurrentUserGroup();
-        return dailyTaskMapper.dailyTaskListToDailyTaskRestList(dailyTaskRepository.findAllByGroup(currentUserGroup));
-    }
+	public List<RestDailyTask> getAllTasksForGroup() {
+		Group currentUserGroup = userService.getCurrentUserGroup();
+		return dailyTaskMapper.dailyTaskListToDailyTaskRestList(dailyTaskRepository.findAllByGroup(currentUserGroup));
+	}
 
-    public void deleteTask(Long id) {
-        dailyTaskRepository.deleteById(id);
-    }
+	public void deleteTask(Long id) {
+		dailyTaskRepository.deleteById(id);
+	}
 
-    public void toggleIsDone(Long id) {
-        dailyTaskRepository.toggleIsDone(id);
-    }
+	public void toggleIsDone(Long id) {
+		dailyTaskRepository.toggleIsDone(id);
+	}
 }

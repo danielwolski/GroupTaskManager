@@ -11,8 +11,14 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface DailyTaskMapper {
 
-    @Mapping(target = "id", ignore = true)
-    DailyTask restCreateDailyTaskToDailyTask(RestCreateDailyTask restDailyTask);
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "createdBy", ignore = true)
+	@Mapping(target = "group", ignore = true)
+	@Mapping(target = "done", ignore = true)
+	@Mapping(target = "currentDay", ignore = true)
+	DailyTask restCreateDailyTaskToDailyTask(RestCreateDailyTask restDailyTask);
 
-    List<RestDailyTask> dailyTaskListToDailyTaskRestList(List<DailyTask> dailyTaskList);
+	@Mapping(target = "createdBy", source = "createdBy.login")
+	RestDailyTask dailyTaskToRestDailyTask(DailyTask dailyTask);
+	List<RestDailyTask> dailyTaskListToDailyTaskRestList(List<DailyTask> dailyTaskList);
 }

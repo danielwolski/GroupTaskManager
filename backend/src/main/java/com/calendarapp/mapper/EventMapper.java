@@ -13,15 +13,17 @@ import com.calendarapp.rest.event.RestEventDetails;
 @Mapper(componentModel = "spring")
 public interface EventMapper {
 
-    @Mapping(target = "id", ignore = true)
-    Event restCreateEventToEvent(RestCreateEvent restEvent);
-    RestCreateEvent eventToRestCreateEvent(Event event);
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "createdBy", ignore = true)
+	@Mapping(target = "group", ignore = true)
+	Event restCreateEventToEvent(RestCreateEvent restEvent);
+	RestCreateEvent eventToRestCreateEvent(Event event);
 
-    Event eventRestToEvent(RestEvent restEvent);
-
-    List<Event> eventRestListToEventList(List<RestEvent> eventRestList);
-    List<RestEvent> eventListToEventRestList(List<Event> eventList);
-    
-    RestEventDetails eventToEventDetails(Event event);
-    List<RestEventDetails> eventListToRestEventDetailsList(List<Event> events);
+	@Mapping(target = "createdBy", source = "createdBy.login")
+	RestEvent eventToRestEvent(Event event);
+	List<RestEvent> eventListToEventRestList(List<Event> eventList);
+	
+	@Mapping(target = "createdBy", source = "createdBy.login")
+	RestEventDetails eventToEventDetails(Event event);
+	List<RestEventDetails> eventListToRestEventDetailsList(List<Event> events);
 }

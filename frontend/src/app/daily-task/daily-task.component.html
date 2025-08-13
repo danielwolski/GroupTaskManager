@@ -11,7 +11,7 @@
               <span [ngClass]="dailyTask.done ? 'icon-task-done' : 'icon-task-not-done'"></span>
             </button>
           </td>
-          <td>{{ dailyTask.description }}</td>
+          <td>{{ dailyTask.description }} ({{ dailyTask.createdBy }})</td>
           <td>
             <button class="delete-button" (click)="removeDailyTask(dailyTask.id)">
               <span class="icon-trash"></span>

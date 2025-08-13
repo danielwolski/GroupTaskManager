@@ -30,6 +30,11 @@ public class DailyTask {
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "created_by_user_id", nullable = true)
+    private User createdBy;
+
     @PrePersist
     protected void onCreate() {
         if (currentDay == null) {

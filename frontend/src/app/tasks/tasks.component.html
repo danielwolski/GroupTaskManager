@@ -12,7 +12,7 @@
                               <span class="icon-task-not-done"></span>
                           </button>
                       </td>
-                      <td>{{ task.description }}</td>
+                      <td>{{ task.description }} ({{ task.createdBy }})</td>
                       <td>
                           <button class="delete-button" (click)="removeTask(task.id)">
                               <span class="icon-trash"></span>
@@ -50,7 +50,7 @@
                               <span class="icon-task-done"></span>
                           </button>
                       </td>
-                      <td class="task-done">{{ task.description }}</td>
+                      <td class="task-done">{{ task.description }} ({{ task.createdBy }})</td>
                       <td>
                           <button class="delete-button" (click)="removeTask(task.id)">
                               <span class="icon-trash"></span>
