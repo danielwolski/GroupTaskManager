@@ -26,6 +26,10 @@ export class AppComponent {
     this.router.navigate(['/daily-task']);
   }
 
+  goToDailyTaskReports() {
+    this.router.navigate(['/daily-task-reports']);
+  }
+
   getUsername() {
     return localStorage.getItem('username');
   }

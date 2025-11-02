@@ -121,6 +121,27 @@
   background-position: center;
 }
 
+.icon-reports {
+  background-image: url('assets/info.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  cursor: pointer;
+  background-position: center;
+}
+
+.icon-pdf {
+  background-image: url('assets/info.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  background-position: center;
+}
+
 .invalid-input {
   border: 2px solid red;
 }

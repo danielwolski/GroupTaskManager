@@ -1,0 +1,111 @@
+<div class="reports-container">
+  <div class="header">
+    <h2>Daily Tasks Reports</h2>
+    <div class="header-controls">
+      <div class="period-selector">
+        <label for="period">Time Period:</label>
+        <select id="period" [(ngModel)]="selectedPeriod" (change)="onPeriodChange()">
+          <option *ngFor="let option of periodOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+      <button 
+        class="generate-report-btn" 
+        (click)="generateReport()" 
+        [disabled]="loading || allUsersStats.length === 0">
+        <i class="icon-pdf"></i> Generate PDF Report
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading statistics...</p>
+  </div>
+
+  <div *ngIf="!loading && !error" class="stats-content">
+    <!-- Current User Stats -->
+    <div *ngIf="currentUserStats" class="current-user-stats">
+      <h3>Your Statistics</h3>
+      <div class="stats-card">
+        <div class="stat-item">
+          <span class="stat-label">Username:</span>
+          <span class="stat-value">{{ currentUserStats.username }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Completed Tasks:</span>
+          <span class="stat-value">{{ currentUserStats.completedTasks }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Total Tasks:</span>
+          <span class="stat-value">{{ currentUserStats.totalTasks }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Completion Rate:</span>
+          <span class="stat-value" [ngClass]="getCompletionRateClass(currentUserStats.completionRate)">
+            {{ currentUserStats.completionRate.toFixed(1) }}%
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- All Users Stats -->
+    <div class="all-users-stats">
+      <h3>Group Statistics</h3>
+      <div *ngIf="allUsersStats.length === 0" class="no-data">
+        <p>No statistics available for this period.</p>
+      </div>
+      
+      <div *ngIf="allUsersStats.length > 0" class="stats-table-container">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Completed</th>
+              <th>Total</th>
+              <th>Completion Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let stat of allUsersStats" class="stat-row">
+              <td class="username">{{ stat.username }}</td>
+              <td class="completed">{{ stat.completedTasks }}</td>
+              <td class="total">{{ stat.totalTasks }}</td>
+              <td class="rate" [ngClass]="getCompletionRateClass(stat.completionRate)">
+                {{ stat.completionRate.toFixed(1) }}%
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div *ngIf="allUsersStats.length > 0" class="summary">
+      <h3>Summary</h3>
+      <div class="summary-stats">
+        <div class="summary-item">
+          <span class="summary-label">Total Users:</span>
+          <span class="summary-value">{{ allUsersStats.length }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Average Completion Rate:</span>
+          <span class="summary-value">
+            {{ getAverageCompletionRate().toFixed(1) }}%
+          </span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Total Tasks Completed:</span>
+          <span class="summary-value">
+            {{ getTotalCompletedTasks() }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

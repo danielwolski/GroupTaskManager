@@ -25,6 +25,13 @@
             <i class="icon-daily-tasks"></i> Daily Tasks
           </button>
         </li>
+        <li class="menu-item"> 
+          <button 
+            [class.active]="isActive('/daily-task-reports')"
+            (click)="goToDailyTaskReports()">
+            <i class="icon-reports"></i> Reports
+          </button>
+        </li>
       </ul>
       <ul class="logout-menu">  
         <div *ngIf="isLoggedIn()" class="username-greeting">

@@ -53,6 +53,9 @@ dependencies {
     implementation 'org.springframework.security:spring-security-oauth2-jose'
 
 	implementation 'org.postgresql:postgresql:42.7.2'
+	
+	// PDF Generation
+	implementation 'com.itextpdf:itext7-core:7.1.16'
 
 }
 

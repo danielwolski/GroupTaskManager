@@ -3,9 +3,13 @@ package com.calendarapp.service;
 import java.util.List;
 
 import com.calendarapp.mapper.DailyTaskMapper;
+import com.calendarapp.mapper.DailyTaskStatsMapper;
+import com.calendarapp.model.DailyTaskStats;
 import com.calendarapp.model.Group;
+import com.calendarapp.model.User;
 import com.calendarapp.repository.DailyTaskRepository;
 import com.calendarapp.rest.dailytask.RestDailyTask;
+import com.calendarapp.rest.dailytask.RestDailyTaskStats;
 import org.springframework.stereotype.Service;
 
 import com.calendarapp.model.DailyTask;
@@ -19,7 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class DailyTaskService {
 	private final DailyTaskMapper dailyTaskMapper;
+	private final DailyTaskStatsMapper dailyTaskStatsMapper;
 	private final DailyTaskRepository dailyTaskRepository;
+	private final DailyTaskArchiveService dailyTaskArchiveService;
 	private final UserService userService;
 
 	public DailyTask createDailyTask(RestCreateDailyTask restDailyTask) {
@@ -42,5 +48,16 @@ public class DailyTaskService {
 
 	public void toggleIsDone(Long id) {
 		dailyTaskRepository.toggleIsDone(id);
+	}
+	
+	public RestDailyTaskStats getCurrentUserStats(int daysBack) {
+		User currentUser = userService.getCurrentUser();
+		DailyTaskStats stats = dailyTaskArchiveService.getUserStats(currentUser, daysBack);
+		return dailyTaskStatsMapper.dailyTaskStatsToRestDailyTaskStats(stats);
+	}
+	
+	public List<RestDailyTaskStats> getAllUsersStats(int daysBack) {
+		List<DailyTaskStats> stats = dailyTaskArchiveService.getAllUsersStats(daysBack);
+		return dailyTaskStatsMapper.dailyTaskStatsListToRestDailyTaskStatsList(stats);
 	}
 }

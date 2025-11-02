@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject, tap } from 'rxjs';
 import { DailyTask, CreateDailyTaskRequest } from '../models/daily-task.model';
+import { DailyTaskStats } from '../models/daily-task-stats.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -38,5 +39,20 @@ export class DailyTaskService {
     return this.http.patch<void>(url, {}).pipe(
       tap(() => this.dailyTasksUpdatedSubject.next())
     );
-  }  
+  }
+
+  getCurrentUserStats(daysBack: number = 7): Observable<DailyTaskStats> {
+    const url = `${this.apiUrl}/stats/current-user?daysBack=${daysBack}`;
+    return this.http.get<DailyTaskStats>(url);
+  }
+
+  getAllUsersStats(daysBack: number = 7): Observable<DailyTaskStats[]> {
+    const url = `${this.apiUrl}/stats/all-users?daysBack=${daysBack}`;
+    return this.http.get<DailyTaskStats[]>(url);
+  }
+
+  generatePdfReport(daysBack: number = 7): Observable<Blob> {
+    const url = `${this.apiUrl}/report/pdf?daysBack=${daysBack}`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
 }
