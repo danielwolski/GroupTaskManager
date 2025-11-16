@@ -2,7 +2,6 @@
 
 DROP TABLE IF EXISTS daily_task_archives CASCADE;
 DROP TABLE IF EXISTS daily_tasks CASCADE;
-DROP TABLE IF EXISTS events CASCADE;
 DROP TABLE IF EXISTS tasks CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS groups CASCADE;
@@ -49,16 +48,6 @@ CREATE TABLE daily_task_archives (
     created_by_user_id INT REFERENCES users(user_id) ON DELETE SET NULL
 );
 
-CREATE TABLE events (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    start_time TIMESTAMP NOT NULL,
-    end_time TIMESTAMP NULL,
-    description TEXT NULL,
-    group_id INT NOT NULL REFERENCES groups(group_id) ON DELETE CASCADE,
-    created_by_user_id INT REFERENCES users(user_id) ON DELETE SET NULL
-);
-
 -- Dane
 INSERT INTO groups (passcode)
 VALUES
@@ -82,12 +71,6 @@ VALUES
     ('Wysłać status dnia', true, 1, 1),
     ('Uzupełnić listę uczestników', false, 1, 2),
     ('Sprawdzić backup systemu', true, 2, 3);
-
-INSERT INTO events (title, start_time, end_time, description, group_id, created_by_user_id)
-VALUES
-    ('Sprint Planning', '2025-10-18 09:00:00', '2025-10-18 10:00:00', 'Planowanie sprintu na nowy tydzień', 1, 2),
-    ('Code Review', '2025-10-19 13:00:00', '2025-10-19 14:00:00', 'Przegląd kodu backendu', 1, 1),
-    ('Deploy aplikacji', '2025-10-20 16:00:00', NULL, 'Wdrożenie nowej wersji na serwer testowy', 2, 3);
 
 INSERT INTO daily_task_archives (description, was_done, group_id, created_by_user_id)
 VALUES
