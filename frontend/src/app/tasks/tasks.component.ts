@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CreateTaskRequest, Task } from '../models/task.model';
 import { TaskService } from '../services/task.service';
+import { UserService } from '../services/user.service';
+import { User } from '../models/user.model';
 
 @Component({
   selector: 'app-tasks',
@@ -14,19 +16,30 @@ export class TasksComponent implements OnInit {
 
   todoTasks: Task[] = [];
   doneTasks: Task[] = [];
+  users: User[] = [];
 
   taskRequest: CreateTaskRequest = {
-    description: ''
+    description: '',
+    assigneeUserId: undefined
   };
 
-  constructor(private taskService: TaskService
+  constructor(
+    private taskService: TaskService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
     this.loadTasks();
+    this.loadUsers();
 
     this.taskService.tasksUpdated$.subscribe(() => {
       this.loadTasks();
+    });
+  }
+
+  loadUsers(): void {
+    this.userService.getUsersByGroup().subscribe((data: User[]) => {
+      this.users = data;
     });
   }
 
@@ -60,7 +73,8 @@ export class TasksComponent implements OnInit {
 
   clearAddTaskFormInput(): void {
     this.taskRequest = {
-      description: ''
+      description: '',
+      assigneeUserId: undefined
     };
   }
   

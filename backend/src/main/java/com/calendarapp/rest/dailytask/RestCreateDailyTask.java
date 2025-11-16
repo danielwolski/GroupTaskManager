@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class RestCreateDailyTask {
     private String description;
+    private Long assigneeUserId;
 }

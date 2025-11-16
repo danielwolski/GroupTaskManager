@@ -44,12 +44,17 @@
 }
 .tasks-table th:nth-child(2),
 .tasks-table td:nth-child(2) {
-  width: 90%;
+  width: 60%;
 }
 
 .tasks-table th:nth-child(3),
 .tasks-table td:nth-child(3) {
-  width: 5%;
+  width: 25%;
+}
+
+.tasks-table th:nth-child(4),
+.tasks-table td:nth-child(4) {
+  width: 10%;
 }
 
 .create-form {
@@ -60,12 +65,23 @@
   
 .create-form input {
     flex: 1;
-    width: 600px;
+    width: 400px;
     padding: 10px;
     font-size: 16px;
     border-radius: 5px;
     box-sizing: border-box;
     margin-bottom: -20px;
+    margin-right: 10px;
+}
+
+.create-form .assignee-select {
+    width: 200px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-bottom: -20px;
+    margin-right: 10px;
 }
   
 .create-form input::placeholder {

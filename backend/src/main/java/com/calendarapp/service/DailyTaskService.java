@@ -31,7 +31,9 @@ public class DailyTaskService {
 	public DailyTask createDailyTask(RestCreateDailyTask restDailyTask) {
 		DailyTask dailyTask = dailyTaskMapper.restCreateDailyTaskToDailyTask(restDailyTask);
 		dailyTask.setGroup(userService.getCurrentUserGroup());
-		dailyTask.setCreatedBy(userService.getCurrentUser());
+		if (restDailyTask.getAssigneeUserId() != null) {
+			dailyTask.setAssignee(userService.getUserById(restDailyTask.getAssigneeUserId()));
+		}
 		DailyTask savedDailyTask = dailyTaskRepository.save(dailyTask);
 		log.info("Daily task saved: {}", savedDailyTask);
 		return savedDailyTask;

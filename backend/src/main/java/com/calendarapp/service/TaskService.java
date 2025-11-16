@@ -26,7 +26,9 @@ public class TaskService {
 	public Task createTask(RestCreateTask restTask) {
 		Task task = taskMapper.restCreateTaskToTask(restTask);
 		task.setGroup(userService.getCurrentUserGroup());
-		task.setCreatedBy(userService.getCurrentUser());
+		if (restTask.getAssigneeUserId() != null) {
+			task.setAssignee(userService.getUserById(restTask.getAssigneeUserId()));
+		}
 		Task savedTask = taskRepository.save(task);
 		log.info("Task saved: {}", savedTask);
 		return savedTask;

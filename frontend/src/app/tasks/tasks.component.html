@@ -5,6 +5,14 @@
       <div>
           <h3 *ngIf="!isTasksListEmpty()">TODO</h3>
           <table class="tasks-table" *ngIf="todoTasks.length > 0">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Description</th>
+                  <th>Assignee</th>
+                  <th></th>
+                </tr>
+              </thead>
               <tbody>
                 <tr *ngFor="let task of todoTasks; let i = index">
                       <td>
@@ -12,7 +20,8 @@
                               <span class="icon-task-not-done"></span>
                           </button>
                       </td>
-                      <td>{{ task.description }} ({{ task.createdBy }})</td>
+                      <td>{{ task.description }}</td>
+                      <td>{{ task.assignee || '-' }}</td>
                       <td>
                           <button class="delete-button" (click)="removeTask(task.id)">
                               <span class="icon-trash"></span>
@@ -32,6 +41,17 @@
                   placeholder="Add new task"
                   required
               />
+              <select
+                  id="assignee"
+                  [(ngModel)]="taskRequest.assigneeUserId"
+                  name="assignee"
+                  class="assignee-select"
+              >
+                  <option [value]="undefined">Select assignee</option>
+                  <option *ngFor="let user of users" [value]="user.id">
+                      {{ user.username }}
+                  </option>
+              </select>
               <div class="form-buttons">
                   <button class="green-button" type="submit" [disabled]="taskForm.invalid">
                       Confirm
@@ -43,6 +63,14 @@
       <div>
           <h3 *ngIf="!isTasksListEmpty()">DONE</h3>
           <table class="tasks-table" *ngIf="doneTasks.length > 0">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Description</th>
+                  <th>Assignee</th>
+                  <th></th>
+                </tr>
+              </thead>
               <tbody>
                   <tr *ngFor="let task of doneTasks; let i = index">
                       <td>
@@ -50,7 +78,8 @@
                               <span class="icon-task-done"></span>
                           </button>
                       </td>
-                      <td class="task-done">{{ task.description }} ({{ task.createdBy }})</td>
+                      <td class="task-done">{{ task.description }}</td>
+                      <td class="task-done">{{ task.assignee || '-' }}</td>
                       <td>
                           <button class="delete-button" (click)="removeTask(task.id)">
                               <span class="icon-trash"></span>

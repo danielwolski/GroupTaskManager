@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class UserService {
@@ -35,5 +37,14 @@ public class UserService {
 		String email = authentication.getName();
 		return userRepository.findByLogin(email)
 				.orElseThrow(() -> new RuntimeException("User not found"));
+	}
+
+	public User getUserById(Long userId) {
+		return userRepository.findById(userId)
+				.orElseThrow(() -> new RuntimeException("User with id " + userId + " not found"));
+	}
+
+	public List<User> getUsersByGroup(Group group) {
+		return userRepository.findByGroup(group);
 	}
 }

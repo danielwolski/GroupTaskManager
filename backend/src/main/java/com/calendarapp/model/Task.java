@@ -27,6 +27,6 @@ public class Task {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "created_by_user_id", nullable = true)
-    private User createdBy;
+    @JoinColumn(name = "assignee_user_id", nullable = true)
+    private User assignee;
 }

@@ -26,7 +26,7 @@ CREATE TABLE tasks (
     description TEXT NOT NULL,
     done BOOLEAN DEFAULT FALSE,
     group_id INT NOT NULL REFERENCES groups(group_id) ON DELETE CASCADE,
-    created_by_user_id INT REFERENCES users(user_id) ON DELETE SET NULL
+    assignee_user_id INT REFERENCES users(user_id) ON DELETE SET NULL
 );
 
 CREATE TABLE daily_tasks (
@@ -35,7 +35,7 @@ CREATE TABLE daily_tasks (
     done BOOLEAN DEFAULT FALSE,
     current_day DATE DEFAULT CURRENT_DATE,
     group_id INT NOT NULL REFERENCES groups(group_id) ON DELETE CASCADE,
-    created_by_user_id INT REFERENCES users(user_id) ON DELETE SET NULL
+    assignee_user_id INT REFERENCES users(user_id) ON DELETE SET NULL
 );
 
 CREATE TABLE daily_task_archives (
@@ -60,13 +60,13 @@ VALUES
     ('Anna Nowak', 'nowak', '$2a$10$iVUxI7XT..jDwnf/gYCC9Oj1JVZKUYBEAXErZmQFG/uV5UdkSeozG', 1, 'USER'),
     ('Piotr Zieliński', 'zielinski', '$2a$10$iVUxI7XT..jDwnf/gYCC9Oj1JVZKUYBEAXErZmQFG/uV5UdkSeozG', 2, 'USER');
 
-INSERT INTO tasks (description, done, group_id, created_by_user_id)
+INSERT INTO tasks (description, done, group_id, assignee_user_id)
 VALUES
     ('Przygotować raport tygodniowy', false, 1, 1),
     ('Spotkanie zespołu o 14:00', true, 1, 2),
     ('Utworzyć nową grupę testową', false, 2, 3);
 
-INSERT INTO daily_tasks (description, done, group_id, created_by_user_id)
+INSERT INTO daily_tasks (description, done, group_id, assignee_user_id)
 VALUES
     ('Wysłać status dnia', true, 1, 1),
     ('Uzupełnić listę uczestników', false, 1, 2),

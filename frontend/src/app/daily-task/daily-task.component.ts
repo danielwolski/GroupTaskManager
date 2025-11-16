@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CreateDailyTaskRequest, DailyTask } from '../models/daily-task.model';
 import { DailyTaskService } from '../services/daily-task.service';
+import { UserService } from '../services/user.service';
+import { User } from '../models/user.model';
 
 @Component({
   selector: 'app-daily-task',
@@ -13,19 +15,30 @@ import { DailyTaskService } from '../services/daily-task.service';
 export class DailyTaskComponent implements OnInit {
 
   dailyTasks: DailyTask[] = [];
+  users: User[] = [];
 
   dailyTaskRequest: CreateDailyTaskRequest = {
-    description: ''
+    description: '',
+    assigneeUserId: undefined
   };
 
-  constructor(private dailyTaskService: DailyTaskService
+  constructor(
+    private dailyTaskService: DailyTaskService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
     this.loadDailyTasks();
+    this.loadUsers();
 
     this.dailyTaskService.dailyTasksUpdated$.subscribe(() => {
       this.loadDailyTasks();
+    });
+  }
+
+  loadUsers(): void {
+    this.userService.getUsersByGroup().subscribe((data: User[]) => {
+      this.users = data;
     });
   }
 
@@ -57,7 +70,8 @@ export class DailyTaskComponent implements OnInit {
 
   clearAddDailyTaskFormInput(): void {
     this.dailyTaskRequest = {
-      description: ''
+      description: '',
+      assigneeUserId: undefined
     };
   }  
 }

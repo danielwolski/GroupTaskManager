@@ -48,7 +48,7 @@ public class DailyTaskArchiveService {
         archive.setTaskDate(dailyTask.getCurrentDay());
         archive.setArchivedDate(archiveDate);
         archive.setGroup(dailyTask.getGroup());
-        archive.setCreatedBy(dailyTask.getCreatedBy());
+        archive.setCreatedBy(dailyTask.getAssignee());
         return archive;
     }
     
@@ -61,7 +61,7 @@ public class DailyTaskArchiveService {
         
         double completionRate = totalTasks > 0 ? (double) completedTasks / totalTasks * 100 : 0;
         
-        List<Task> allRegularTasks = taskRepository.findAllByGroupAndCreatedBy(group, user);
+        List<Task> allRegularTasks = taskRepository.findAllByGroupAndAssignee(group, user);
         List<Task> doneRegularTasks = allRegularTasks.stream()
                 .filter(Task::isDone)
                 .toList();

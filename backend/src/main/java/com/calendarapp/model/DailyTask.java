@@ -32,8 +32,8 @@ public class DailyTask {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "created_by_user_id", nullable = true)
-    private User createdBy;
+    @JoinColumn(name = "assignee_user_id", nullable = true)
+    private User assignee;
 
     @PrePersist
     protected void onCreate() {

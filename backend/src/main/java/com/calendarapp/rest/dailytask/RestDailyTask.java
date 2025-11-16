@@ -9,5 +9,5 @@ public class RestDailyTask {
 	private Long id;
 	private boolean done;
 	private String description;
-	private String createdBy;
+	private String assignee;
 }

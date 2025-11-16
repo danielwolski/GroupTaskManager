@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class RestCreateTask {
     private String description;
+    private Long assigneeUserId;
 }
