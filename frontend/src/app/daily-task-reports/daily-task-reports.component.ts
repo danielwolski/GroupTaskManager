@@ -86,6 +86,55 @@ export class DailyTaskReportsComponent implements OnInit {
     return this.allUsersStats.reduce((sum, stat) => sum + stat.completedTasks, 0);
   }
 
+  getRegularTasksCompletionRate(stat: DailyTaskStats): number {
+    if (!stat.regularTasksDone && !stat.regularTasksNotDone) return 0;
+    const total = (stat.regularTasksDone || 0) + (stat.regularTasksNotDone || 0);
+    if (total === 0) return 0;
+    return ((stat.regularTasksDone || 0) / total) * 100;
+  }
+
+  getTotalRegularTasksDone(): number {
+    return this.allUsersStats.reduce((sum, stat) => sum + (stat.regularTasksDone || 0), 0);
+  }
+
+  getTotalRegularTasksNotDone(): number {
+    return this.allUsersStats.reduce((sum, stat) => sum + (stat.regularTasksNotDone || 0), 0);
+  }
+
+  getTotalRegularTasks(): number {
+    return this.getTotalRegularTasksDone() + this.getTotalRegularTasksNotDone();
+  }
+
+  getOverallRegularTasksCompletionRate(): number {
+    const total = this.getTotalRegularTasks();
+    if (total === 0) return 0;
+    return (this.getTotalRegularTasksDone() / total) * 100;
+  }
+
+  hasRegularTasks(stat: DailyTaskStats): boolean {
+    return (stat.regularTasksDone || 0) > 0 || (stat.regularTasksNotDone || 0) > 0;
+  }
+
+  getAllRegularTasksDone(): string[] {
+    const allDoneTasks: string[] = [];
+    this.allUsersStats.forEach(stat => {
+      if (stat.regularTasksDoneNames) {
+        allDoneTasks.push(...stat.regularTasksDoneNames);
+      }
+    });
+    return allDoneTasks;
+  }
+
+  getAllRegularTasksNotDone(): string[] {
+    const allNotDoneTasks: string[] = [];
+    this.allUsersStats.forEach(stat => {
+      if (stat.regularTasksNotDoneNames) {
+        allNotDoneTasks.push(...stat.regularTasksNotDoneNames);
+      }
+    });
+    return allNotDoneTasks;
+  }
+
   generateReport(): void {
     this.loading = true;
     this.error = null;

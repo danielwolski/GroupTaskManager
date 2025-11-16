@@ -1,4 +1,4 @@
--- C:\Users\Daniel\Desktop\calendarapp\TaskManager\new-repo\postgresql>docker exec -i -e PGPASSWORD=admin postgres psql -U admin -d calendarapp < seed.sql
+-- docker exec -i -e PGPASSWORD=admin postgres psql -U admin -d calendarapp < seed.sql
 
 DROP TABLE IF EXISTS daily_task_archives CASCADE;
 DROP TABLE IF EXISTS daily_tasks CASCADE;
@@ -95,4 +95,4 @@ VALUES
     ('Zarchiwizować stare zadania', false, 1, 2),
     ('Sprawdzić błędy z testów integracyjnych', true, 2, 3);
 
-SELECT 'Seed danych dla GroupTaskManager wczytany pomyślnie' AS status;
+SELECT 'Seed wczytany pomyślnie' AS status;

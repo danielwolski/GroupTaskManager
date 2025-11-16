@@ -10,9 +10,9 @@
           </option>
         </select>
       </div>
-      <button 
-        class="generate-report-btn" 
-        (click)="generateReport()" 
+      <button
+        class="generate-report-btn"
+        (click)="generateReport()"
         [disabled]="loading || allUsersStats.length === 0">
         <i class="icon-pdf"></i> Generate PDF Report
       </button>
@@ -32,7 +32,10 @@
     <!-- Current User Stats -->
     <div *ngIf="currentUserStats" class="current-user-stats">
       <h3>Your Statistics</h3>
+
+      <!-- Daily Tasks Stats -->
       <div class="stats-card">
+        <h4 class="stats-section-title">Daily Tasks</h4>
         <div class="stat-item">
           <span class="stat-label">Username:</span>
           <span class="stat-value">{{ currentUserStats.username }}</span>
@@ -52,6 +55,44 @@
           </span>
         </div>
       </div>
+
+      <div *ngIf="hasRegularTasks(currentUserStats)" class="stats-card regular-tasks-section">
+        <h4 class="stats-section-title">Regular Tasks</h4>
+        <div class="stat-item">
+          <span class="stat-label">Completed:</span>
+          <span class="stat-value">{{ currentUserStats.regularTasksDone || 0 }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Not Completed:</span>
+          <span class="stat-value">{{ currentUserStats.regularTasksNotDone || 0 }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Total:</span>
+          <span class="stat-value">{{ (currentUserStats.regularTasksDone || 0) + (currentUserStats.regularTasksNotDone || 0) }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Completion Rate:</span>
+          <span class="stat-value" [ngClass]="getCompletionRateClass(getRegularTasksCompletionRate(currentUserStats))">
+            {{ getRegularTasksCompletionRate(currentUserStats).toFixed(1) }}%
+          </span>
+        </div>
+
+        <!-- Completed Tasks List -->
+        <div *ngIf="currentUserStats.regularTasksDone && currentUserStats.regularTasksDone > 0" class="tasks-list">
+          <h5 class="tasks-list-title">Completed Tasks ({{ currentUserStats.regularTasksDone }})</h5>
+          <ul class="tasks-list-items completed-tasks">
+            <li *ngFor="let taskName of currentUserStats.regularTasksDoneNames">{{ taskName }}</li>
+          </ul>
+        </div>
+
+        <!-- Not Completed Tasks List -->
+        <div *ngIf="currentUserStats.regularTasksNotDone && currentUserStats.regularTasksNotDone > 0" class="tasks-list">
+          <h5 class="tasks-list-title">Not Completed Tasks ({{ currentUserStats.regularTasksNotDone }})</h5>
+          <ul class="tasks-list-items not-completed-tasks">
+            <li *ngFor="let taskName of currentUserStats.regularTasksNotDoneNames">{{ taskName }}</li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <!-- All Users Stats -->
@@ -60,7 +101,7 @@
       <div *ngIf="allUsersStats.length === 0" class="no-data">
         <p>No statistics available for this period.</p>
       </div>
-      
+
       <div *ngIf="allUsersStats.length > 0" class="stats-table-container">
         <table class="stats-table">
           <thead>
@@ -69,6 +110,9 @@
               <th>Completed</th>
               <th>Total</th>
               <th>Completion Rate</th>
+              <th>Regular Tasks Done</th>
+              <th>Regular Tasks Not Done</th>
+              <th>Regular Tasks Rate</th>
             </tr>
           </thead>
           <tbody>
@@ -79,9 +123,48 @@
               <td class="rate" [ngClass]="getCompletionRateClass(stat.completionRate)">
                 {{ stat.completionRate.toFixed(1) }}%
               </td>
+              <td class="regular-done">{{ stat.regularTasksDone || 0 }}</td>
+              <td class="regular-not-done">{{ stat.regularTasksNotDone || 0 }}</td>
+              <td class="regular-rate" [ngClass]="getCompletionRateClass(getRegularTasksCompletionRate(stat))">
+                {{ getRegularTasksCompletionRate(stat).toFixed(1) }}%
+              </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Regular Tasks Details - Group View -->
+      <div *ngIf="allUsersStats.length > 0 && getTotalRegularTasks() > 0" class="regular-tasks-details">
+        <h3>Regular Tasks Details</h3>
+        
+        <div class="group-tasks-summary">
+          <div class="summary-box">
+            <span class="summary-label">Total Done:</span>
+            <span class="summary-number done">{{ getTotalRegularTasksDone() }}</span>
+            <span class="summary-percentage">({{ getOverallRegularTasksCompletionRate().toFixed(1) }}%)</span>
+          </div>
+          <div class="summary-box">
+            <span class="summary-label">Total Not Done:</span>
+            <span class="summary-number not-done">{{ getTotalRegularTasksNotDone() }}</span>
+            <span class="summary-percentage">({{ (100 - getOverallRegularTasksCompletionRate()).toFixed(1) }}%)</span>
+          </div>
+        </div>
+
+        <!-- Completed Tasks List - All Users -->
+        <div *ngIf="getTotalRegularTasksDone() > 0" class="tasks-list">
+          <h5 class="tasks-list-title">Completed Tasks ({{ getTotalRegularTasksDone() }})</h5>
+          <ul class="tasks-list-items completed-tasks">
+            <li *ngFor="let taskName of getAllRegularTasksDone()">{{ taskName }}</li>
+          </ul>
+        </div>
+
+        <!-- Not Completed Tasks List - All Users -->
+        <div *ngIf="getTotalRegularTasksNotDone() > 0" class="tasks-list">
+          <h5 class="tasks-list-title">Not Completed Tasks ({{ getTotalRegularTasksNotDone() }})</h5>
+          <ul class="tasks-list-items not-completed-tasks">
+            <li *ngFor="let taskName of getAllRegularTasksNotDone()">{{ taskName }}</li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -94,15 +177,33 @@
           <span class="summary-value">{{ allUsersStats.length }}</span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Average Completion Rate:</span>
+          <span class="summary-label">Daily Tasks - Average Completion Rate:</span>
           <span class="summary-value">
             {{ getAverageCompletionRate().toFixed(1) }}%
           </span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Total Tasks Completed:</span>
+          <span class="summary-label">Daily Tasks - Total Completed:</span>
           <span class="summary-value">
             {{ getTotalCompletedTasks() }}
+          </span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Regular Tasks - Total Done:</span>
+          <span class="summary-value">
+            {{ getTotalRegularTasksDone() }}
+          </span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Regular Tasks - Total Not Done:</span>
+          <span class="summary-value">
+            {{ getTotalRegularTasksNotDone() }}
+          </span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Regular Tasks - Completion Rate:</span>
+          <span class="summary-value">
+            {{ getOverallRegularTasksCompletionRate().toFixed(1) }}%
           </span>
         </div>
       </div>

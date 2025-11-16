@@ -164,10 +164,40 @@ public class PdfReportService {
             
             userSummaryTable.addCell(new Cell().add(new Paragraph("Analysis Period")));
             userSummaryTable.addCell(new Cell().add(new Paragraph("Last " + stat.getPeriodDays() + " days")));
+            
+            userSummaryTable.addCell(new Cell().add(new Paragraph("Regular Tasks Done")));
+            userSummaryTable.addCell(new Cell().add(new Paragraph(String.valueOf(stat.getRegularTasksDone()))));
+            
+            userSummaryTable.addCell(new Cell().add(new Paragraph("Regular Tasks Not Done")));
+            userSummaryTable.addCell(new Cell().add(new Paragraph(String.valueOf(stat.getRegularTasksNotDone()))));
 
             document.add(userSummaryTable);
 
-            document.add(new Paragraph("Performance Analysis").setFontSize(16).setBold().setMarginTop(20));
+            // Zwykłe taski - Done
+            if (stat.getRegularTasksDone() != null && stat.getRegularTasksDone() > 0) {
+                document.add(new Paragraph("Regular Tasks - Completed (" + stat.getRegularTasksDone() + ")")
+                        .setFontSize(16).setBold().setMarginTop(20));
+                if (stat.getRegularTasksDoneNames() != null && !stat.getRegularTasksDoneNames().isEmpty()) {
+                    for (String taskName : stat.getRegularTasksDoneNames()) {
+                        Paragraph taskParagraph = new Paragraph("• " + taskName);
+                        document.add(taskParagraph);
+                    }
+                }
+            }
+            
+            // Zwykłe taski - Not Done
+            if (stat.getRegularTasksNotDone() != null && stat.getRegularTasksNotDone() > 0) {
+                document.add(new Paragraph("Regular Tasks - Not Completed (" + stat.getRegularTasksNotDone() + ")")
+                        .setFontSize(16).setBold().setMarginTop(20));
+                if (stat.getRegularTasksNotDoneNames() != null && !stat.getRegularTasksNotDoneNames().isEmpty()) {
+                    for (String taskName : stat.getRegularTasksNotDoneNames()) {
+                        Paragraph taskParagraph = new Paragraph("• " + taskName);
+                        document.add(taskParagraph);
+                    }
+                }
+            }
+
+            document.add(new Paragraph("Daily Tasks Performance Analysis").setFontSize(16).setBold().setMarginTop(20));
             
             String performanceComment = getPerformanceComment(stat.getCompletionRate());
             Paragraph comment = new Paragraph(performanceComment);

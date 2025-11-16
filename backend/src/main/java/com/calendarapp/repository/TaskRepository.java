@@ -24,4 +24,13 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("SELECT t FROM Task t WHERE t.group = :group")
     List<Task> findAllByGroup(Group group);
+    
+    @Query("SELECT t FROM Task t WHERE t.group = :group AND t.createdBy = :user")
+    List<Task> findAllByGroupAndCreatedBy(Group group, com.calendarapp.model.User user);
+    
+    @Query("SELECT t FROM Task t WHERE t.group = :group AND t.createdBy = :user AND t.done = true")
+    List<Task> findAllByGroupAndCreatedByAndDoneTrue(Group group, com.calendarapp.model.User user);
+    
+    @Query("SELECT t FROM Task t WHERE t.group = :group AND t.createdBy = :user AND t.done = false")
+    List<Task> findAllByGroupAndCreatedByAndDoneFalse(Group group, com.calendarapp.model.User user);
 }

@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -16,4 +18,9 @@ public class DailyTaskStats {
     private Long totalTasks;
     private double completionRate;
     private int periodDays;
+    
+    private Long regularTasksDone;
+    private Long regularTasksNotDone;
+    private List<String> regularTasksDoneNames;
+    private List<String> regularTasksNotDoneNames;
 }
