@@ -5,49 +5,41 @@
             <i class="icon-gtm"></i>
         </li>
         <li class="menu-item">
-          <button 
-            [class.active]="isActive('/events-list')"
-            (click)="goToCalendar()">
-            <i class="icon-calendar"></i> Calendar
-          </button>
-        </li>
-        <li class="menu-item"> 
-          <button 
+          <button
             [class.active]="isActive('/tasks')"
             (click)="goToTasks()">
             <i class="icon-tasks"></i> Tasks
           </button>
         </li>
-        <li class="menu-item"> 
-          <button 
+        <li class="menu-item">
+          <button
             [class.active]="isActive('/daily-task')"
             (click)="goToDailyTask()">
             <i class="icon-daily-tasks"></i> Daily Tasks
           </button>
         </li>
-        <li class="menu-item"> 
-          <button 
+        <li class="menu-item">
+          <button
             [class.active]="isActive('/daily-task-reports')"
             (click)="goToDailyTaskReports()">
             <i class="icon-reports"></i> Reports
           </button>
         </li>
       </ul>
-      <ul class="logout-menu">  
+      <ul class="logout-menu">
         <div *ngIf="isLoggedIn()" class="username-greeting">
           Logged as: {{getUsername()}}
         </div>
-        <li class="menu-item"> 
-          <button 
+        <li class="menu-item">
+          <button
             (click)="logout()">
             <i class="icon-logout"></i> Logout
           </button>
         </li>
       </ul>
     </div>
-  
+
     <div class="main-content">
       <router-outlet></router-outlet>
     </div>
 </div>
-  

@@ -11,7 +11,7 @@
     border-radius: 4px;
     cursor: pointer;
   }
-  
+
 .close-button:hover {
     background-color: #69111a;
   }
@@ -90,17 +90,6 @@
 
 .icon-task-not-done {
   background-image: url('assets/task-not-done.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  width: 20px;
-  height: 20px;
-  display: inline-block;
-  cursor: pointer;
-  background-position: center;
-}
-
-.icon-calendar {
-  background-image: url('assets/calendar.png');
   background-size: contain;
   background-repeat: no-repeat;
   width: 20px;

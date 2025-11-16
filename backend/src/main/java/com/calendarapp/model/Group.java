@@ -35,14 +35,10 @@ public class Group {
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DailyTask> dailyTasks;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Event> events;
-
     public Group(String passcode) {
         this.passcode = passcode;
         this.tasks = new ArrayList<>();
         this.dailyTasks = new ArrayList<>();
-        this.events = new ArrayList<>();
     }
 
     @Override
