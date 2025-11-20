@@ -1,4 +1,4 @@
--- docker exec -i -e PGPASSWORD=admin postgres psql -U admin -d calendarapp < seed.sql
+-- docker exec -i -e PGPASSWORD=admin postgres psql -U admin -d grouptaskmanager < seed.sql
 
 DROP TABLE IF EXISTS daily_task_archives CASCADE;
 DROP TABLE IF EXISTS daily_tasks CASCADE;
