@@ -9,7 +9,8 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class DailyTaskService {
-  private apiUrl = `${environment.apiUrl}/api/daily-tasks`;  
+  private apiUrl = `${environment.apiUrl}/api/daily-tasks`;
+  private reportsApiUrl = `${environment.apiUrl}/api/reports`;
 
   private dailyTasksUpdatedSubject = new Subject<void>();
 
@@ -42,17 +43,17 @@ export class DailyTaskService {
   }
 
   getCurrentUserStats(daysBack: number = 7): Observable<DailyTaskStats> {
-    const url = `${this.apiUrl}/stats/current-user?daysBack=${daysBack}`;
+    const url = `${this.reportsApiUrl}/stats/current-user?daysBack=${daysBack}`;
     return this.http.get<DailyTaskStats>(url);
   }
 
   getAllUsersStats(daysBack: number = 7): Observable<DailyTaskStats[]> {
-    const url = `${this.apiUrl}/stats/all-users?daysBack=${daysBack}`;
+    const url = `${this.reportsApiUrl}/stats/all-users?daysBack=${daysBack}`;
     return this.http.get<DailyTaskStats[]>(url);
   }
 
   generatePdfReport(daysBack: number = 7): Observable<Blob> {
-    const url = `${this.apiUrl}/report/pdf?daysBack=${daysBack}`;
+    const url = `${this.reportsApiUrl}/pdf?daysBack=${daysBack}`;
     return this.http.get(url, { responseType: 'blob' });
   }
 }
