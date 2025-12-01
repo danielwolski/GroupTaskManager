@@ -108,6 +108,24 @@ services:
       - task-service
       - report-service
 
+  report-service:
+    build:
+      context: ./backend/report-service
+      dockerfile: Dockerfile
+    container_name: report-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - gtm-network
+    depends_on:
+      report-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
   auth-service:
     build:
       context: ./backend/auth-service
@@ -136,25 +154,6 @@ services:
       - gtm-network
     depends_on:
       task-db:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-      auth-service:
-        condition: service_started
-
-  report-service:
-    build:
-      context: ./backend/report-service
-      dockerfile: Dockerfile
-    container_name: report-service
-    ports:
-      - "8083:8083"
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      - gtm-network
-    depends_on:
-      report-db:
         condition: service_healthy
       kafka:
         condition: service_healthy
