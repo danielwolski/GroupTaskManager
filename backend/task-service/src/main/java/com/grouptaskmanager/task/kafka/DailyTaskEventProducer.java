@@ -11,14 +11,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DailyTaskEventProducer {
 
-    private final KafkaTemplate<String, DailyTaskArchivedEvent> kafkaTemplate;
+    private final KafkaTemplate<String, DailyTaskEvent> kafkaTemplate;
 
-    @Value("${kafka.topic.daily-task-archived}")
-    private String dailyTaskArchivedTopic;
+    @Value("${kafka.topic.daily-tasks}")
+    private String dailyTasksTopic;
 
-    public void sendDailyTaskArchivedEvent(DailyTaskArchivedEvent event) {
-        log.info("Sending daily task archived event: {}", event);
-        kafkaTemplate.send(dailyTaskArchivedTopic, String.valueOf(event.getDailyTaskId()), event);
+    public void sendDailyTaskEvent(DailyTaskEvent event) {
+        log.info("Sending daily task event: {} - {}", event.getEventType(), event.getDailyTaskId());
+        kafkaTemplate.send(dailyTasksTopic, String.valueOf(event.getDailyTaskId()), event);
     }
 }
-

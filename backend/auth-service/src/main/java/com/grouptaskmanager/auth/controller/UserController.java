@@ -17,6 +17,12 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/by-login/{login}")
+    public ResponseEntity<UserDto> getUserByLogin(@PathVariable String login) {
+        log.info("Get user by login: {}", login);
+        return ResponseEntity.ok(userService.getUserByLogin(login));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<UserDto> getCurrentUser() {
         log.info("Get current user request");
@@ -33,12 +39,6 @@ public class UserController {
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
         log.info("Get user by id: {}", id);
         return ResponseEntity.ok(userService.getUserById(id));
-    }
-
-    @GetMapping("/by-login/{login}")
-    public ResponseEntity<UserDto> getUserByLogin(@PathVariable String login) {
-        log.info("Get user by login: {}", login);
-        return ResponseEntity.ok(userService.getUserByLogin(login));
     }
 }
 

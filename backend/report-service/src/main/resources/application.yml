@@ -33,7 +33,7 @@ services:
 
 kafka:
   topic:
-    daily-task-archived: daily-task-archived
+    daily-tasks: daily-tasks
 
 management:
   endpoints:

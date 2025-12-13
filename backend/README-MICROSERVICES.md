@@ -120,14 +120,14 @@ docker exec -i -e PGPASSWORD=admin auth-db psql -U admin -d authdb < postgresql/
 
 ## Kafka Topics
 
-- `daily-task-archived` - Eventy archiwizacji dziennych zadań
+- `daily-tasks` - Eventy dziennych zadań (CREATED, UPDATED, DELETED, DAY_RESET)
 
 ## Komunikacja między serwisami
 
 1. **API Gateway → Wszystkie serwisy**: Routing + JWT verification
 2. **Task Service → Auth Service**: REST (pobieranie danych użytkownika)
 3. **Report Service → Auth Service**: REST (pobieranie danych użytkownika)
-4. **Task Service → Report Service**: Kafka (eventy archiwizacji)
+4. **Task Service → Report Service**: Kafka (eventy daily tasków)
 
 ## Testowe dane logowania
 

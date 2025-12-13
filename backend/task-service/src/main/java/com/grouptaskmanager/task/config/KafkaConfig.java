@@ -9,15 +9,14 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaConfig {
 
-    @Value("${kafka.topic.daily-task-archived}")
-    private String dailyTaskArchivedTopic;
+    @Value("${kafka.topic.daily-tasks}")
+    private String dailyTasksTopic;
 
     @Bean
-    public NewTopic dailyTaskArchivedTopic() {
-        return TopicBuilder.name(dailyTaskArchivedTopic)
+    public NewTopic dailyTasksTopic() {
+        return TopicBuilder.name(dailyTasksTopic)
                 .partitions(3)
                 .replicas(1)
                 .build();
     }
 }
-

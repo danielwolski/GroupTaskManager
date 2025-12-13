@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   # ==================== DATABASES ====================
   auth-db:
-    image: bitnami/postgresql:15
+    image: postgres:15-alpine
     container_name: auth-db
     environment:
       POSTGRES_USER: admin
@@ -12,7 +10,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - auth_db_data:/bitnami/postgresql
+      - auth_db_data:/var/lib/postgresql/data
     networks:
       - gtm-network
     healthcheck:
@@ -22,7 +20,7 @@ services:
       retries: 5
 
   task-db:
-    image: bitnami/postgresql:15
+    image: postgres:15-alpine
     container_name: task-db
     environment:
       POSTGRES_USER: admin
@@ -31,7 +29,7 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - task_db_data:/bitnami/postgresql
+      - task_db_data:/var/lib/postgresql/data
     networks:
       - gtm-network
     healthcheck:
@@ -41,7 +39,7 @@ services:
       retries: 5
 
   report-db:
-    image: bitnami/postgresql:15
+    image: postgres:15-alpine
     container_name: report-db
     environment:
       POSTGRES_USER: admin
@@ -50,7 +48,7 @@ services:
     ports:
       - "5435:5432"
     volumes:
-      - report_db_data:/bitnami/postgresql
+      - report_db_data:/var/lib/postgresql/data
     networks:
       - gtm-network
     healthcheck:
@@ -60,72 +58,33 @@ services:
       retries: 5
 
   # ==================== KAFKA ====================
-  zookeeper:
-    image: bitnami/zookeeper:3.9
-    container_name: zookeeper
-    environment:
-      ALLOW_ANONYMOUS_LOGIN: "yes"
-    ports:
-      - "2181:2181"
-    networks:
-      - gtm-network
-
   kafka:
-    image: bitnami/kafka:3.6
+    image: apache/kafka:3.7.0
     container_name: kafka
-    depends_on:
-      - zookeeper
     environment:
-      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
-      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     ports:
       - "9092:9092"
     networks:
       - gtm-network
     healthcheck:
-      test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
       interval: 30s
       timeout: 10s
       retries: 5
 
   # ==================== MICROSERVICES ====================
-  api-gateway:
-    build:
-      context: ./backend/api-gateway
-      dockerfile: Dockerfile
-    container_name: api-gateway
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      - gtm-network
-    depends_on:
-      - auth-service
-      - task-service
-      - report-service
-
-  report-service:
-    build:
-      context: ./backend/report-service
-      dockerfile: Dockerfile
-    container_name: report-service
-    ports:
-      - "8083:8083"
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    networks:
-      - gtm-network
-    depends_on:
-      report-db:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-      auth-service:
-        condition: service_started
   auth-service:
     build:
       context: ./backend/auth-service
@@ -160,6 +119,41 @@ services:
       auth-service:
         condition: service_started
 
+  report-service:
+    build:
+      context: ./backend/report-service
+      dockerfile: Dockerfile
+    container_name: report-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - gtm-network
+    depends_on:
+      report-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - gtm-network
+    depends_on:
+      - auth-service
+      - task-service
+      - report-service
+
   # ==================== FRONTEND ====================
   frontend:
     build:
@@ -181,4 +175,3 @@ volumes:
   auth_db_data:
   task_db_data:
   report_db_data:
-

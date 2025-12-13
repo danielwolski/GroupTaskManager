@@ -3,7 +3,7 @@ package com.grouptaskmanager.task.service;
 import com.grouptaskmanager.task.dto.RestCreateDailyTask;
 import com.grouptaskmanager.task.dto.RestDailyTask;
 import com.grouptaskmanager.task.dto.UserDto;
-import com.grouptaskmanager.task.kafka.DailyTaskArchivedEvent;
+import com.grouptaskmanager.task.kafka.DailyTaskEvent;
 import com.grouptaskmanager.task.kafka.DailyTaskEventProducer;
 import com.grouptaskmanager.task.model.DailyTask;
 import com.grouptaskmanager.task.repository.DailyTaskRepository;
@@ -38,11 +38,21 @@ public class DailyTaskService {
         dailyTask.setGroupId(currentUser.getGroupId());
         dailyTask.setAssigneeUserId(restCreateDailyTask.getAssigneeUserId());
 
-        return dailyTaskRepository.save(dailyTask);
+        DailyTask savedTask = dailyTaskRepository.save(dailyTask);
+
+        // Send event to Kafka
+        sendDailyTaskEvent(savedTask, DailyTaskEvent.EventType.CREATED);
+
+        return savedTask;
     }
 
     public void deleteTask(Long id) {
-        dailyTaskRepository.deleteById(id);
+        DailyTask task = dailyTaskRepository.findById(id).orElse(null);
+        if (task != null) {
+            // Send event before deleting
+            sendDailyTaskEvent(task, DailyTaskEvent.EventType.DELETED);
+            dailyTaskRepository.deleteById(id);
+        }
     }
 
     public List<RestDailyTask> getAllTasksForGroup(String userLogin) {
@@ -81,31 +91,24 @@ public class DailyTaskService {
         DailyTask task = dailyTaskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Daily task not found: " + id));
         task.setDone(!task.isDone());
-        dailyTaskRepository.save(task);
+        DailyTask savedTask = dailyTaskRepository.save(task);
+
+        // Send update event to Kafka
+        sendDailyTaskEvent(savedTask, DailyTaskEvent.EventType.UPDATED);
     }
 
     /**
-     * Archives old daily tasks and sends events to Report Service via Kafka
+     * Resets old daily tasks for a new day and sends events to Report Service via Kafka
      */
-    public void archiveOldDailyTasks() {
+    public void resetOldDailyTasks() {
         LocalDate today = LocalDate.now();
         List<DailyTask> oldTasks = dailyTaskRepository.findAllByCurrentDayBefore(today);
         
-        log.info("Found {} daily tasks to archive", oldTasks.size());
+        log.info("Found {} daily tasks to reset for new day", oldTasks.size());
         
         for (DailyTask task : oldTasks) {
-            // Send event to Kafka for Report Service
-            DailyTaskArchivedEvent event = DailyTaskArchivedEvent.builder()
-                    .dailyTaskId(task.getId())
-                    .description(task.getDescription())
-                    .wasDone(task.isDone())
-                    .taskDate(task.getCurrentDay())
-                    .archivedDate(today)
-                    .groupId(task.getGroupId())
-                    .assigneeUserId(task.getAssigneeUserId())
-                    .build();
-            
-            dailyTaskEventProducer.sendDailyTaskArchivedEvent(event);
+            // Send DAY_RESET event to Kafka (captures the state before reset)
+            sendDailyTaskEvent(task, DailyTaskEvent.EventType.DAY_RESET);
             
             // Reset task for new day
             task.setDone(false);
@@ -113,7 +116,21 @@ public class DailyTaskService {
             dailyTaskRepository.save(task);
         }
         
-        log.info("Archived {} daily tasks", oldTasks.size());
+        log.info("Reset {} daily tasks for new day", oldTasks.size());
+    }
+
+    private void sendDailyTaskEvent(DailyTask task, DailyTaskEvent.EventType eventType) {
+        DailyTaskEvent event = DailyTaskEvent.builder()
+                .dailyTaskId(task.getId())
+                .description(task.getDescription())
+                .done(task.isDone())
+                .taskDate(task.getCurrentDay())
+                .eventDate(LocalDate.now())
+                .groupId(task.getGroupId())
+                .assigneeUserId(task.getAssigneeUserId())
+                .eventType(eventType)
+                .build();
+        
+        dailyTaskEventProducer.sendDailyTaskEvent(event);
     }
 }
-

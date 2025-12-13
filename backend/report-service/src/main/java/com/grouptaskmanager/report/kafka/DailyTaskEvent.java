@@ -11,13 +11,21 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DailyTaskArchivedEvent {
+public class DailyTaskEvent {
     private Long dailyTaskId;
     private String description;
-    private boolean wasDone;
+    private boolean done;
     private LocalDate taskDate;
-    private LocalDate archivedDate;
+    private LocalDate eventDate;
     private Long groupId;
     private Long assigneeUserId;
+    private EventType eventType;
+
+    public enum EventType {
+        CREATED,
+        UPDATED,
+        DELETED,
+        DAY_RESET
+    }
 }
 

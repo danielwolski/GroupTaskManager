@@ -14,29 +14,28 @@ public class DailyTaskScheduler {
     private final DailyTaskService dailyTaskService;
 
     /**
-     * Run on application startup to archive any tasks from previous days
+     * Run on application startup to reset any tasks from previous days
      */
     @PostConstruct
     public void onStartup() {
-        log.info("Application started - checking for old daily tasks to archive");
+        log.info("Application started - checking for old daily tasks to reset");
         try {
-            dailyTaskService.archiveOldDailyTasks();
+            dailyTaskService.resetOldDailyTasks();
         } catch (Exception e) {
-            log.error("Error archiving old daily tasks on startup", e);
+            log.error("Error resetting old daily tasks on startup", e);
         }
     }
 
     /**
-     * Run every day at midnight to archive daily tasks
+     * Run every day at midnight to reset daily tasks
      */
     @Scheduled(cron = "0 0 0 * * *")
-    public void archiveDailyTasks() {
-        log.info("Scheduled task - archiving daily tasks");
+    public void resetDailyTasks() {
+        log.info("Scheduled task - resetting daily tasks for new day");
         try {
-            dailyTaskService.archiveOldDailyTasks();
+            dailyTaskService.resetOldDailyTasks();
         } catch (Exception e) {
-            log.error("Error in scheduled daily task archiving", e);
+            log.error("Error in scheduled daily task reset", e);
         }
     }
 }
-
