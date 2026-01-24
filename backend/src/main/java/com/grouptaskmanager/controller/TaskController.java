@@ -46,7 +46,7 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<List<RestTask>> getAllTasksForGroup() {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(taskService.getAllTasksForGroup());
+        return ResponseEntity.ok().body(taskService.getAllTasksForGroup());
     }
 
     @PatchMapping("/{id}")

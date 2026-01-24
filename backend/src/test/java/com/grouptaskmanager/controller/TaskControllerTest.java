@@ -79,7 +79,7 @@ class TaskControllerTest {
         when(taskService.getAllTasksForGroup()).thenReturn(List.of(restTask));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/tasks"))
-                .andExpect(status().isAccepted())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].description").value("Test Task"));
 
