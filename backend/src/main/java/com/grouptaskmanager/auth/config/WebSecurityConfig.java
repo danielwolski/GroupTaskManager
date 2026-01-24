@@ -30,7 +30,10 @@ public class WebSecurityConfig {
     @Value("${frontend.url}")
     private String frontendUrl;
 
-    private static final String[] WHITE_LIST_URL = {"/api/auth/**"};
+    private static final String[] WHITE_LIST_URL = {
+            "/api/auth/**",
+            "/actuator/**"
+    };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final LogoutHandler logoutHandler;
