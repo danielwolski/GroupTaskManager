@@ -25,30 +25,25 @@ export const options = {
 const BASE_URL = __ENV.BASE_URL || 'http://backend:8080';
 const API_BASE = `${BASE_URL}/api`;
 
-const testUsers = [
-  { email: 'stresstest1@example.com', password: 'password123', username: 'stresstest1' },
-  { email: 'stresstest2@example.com', password: 'password123', username: 'stresstest2' },
-  { email: 'stresstest3@example.com', password: 'password123', username: 'stresstest3' },
-];
-
-function authenticateUser(user) {
-  const loginPayload = JSON.stringify({
-    email: user.email,
-    password: user.password,
-  });
-
-  let loginRes = http.post(`${API_BASE}/auth/login`, loginPayload, {
-    headers: { 'Content-Type': 'application/json' },
-  });
-
-  if (loginRes.status === 200) {
-    return JSON.parse(loginRes.body).token;
+export function setup() {
+  // Verify backend is available
+  const healthRes = http.get(`${BASE_URL}/actuator/health`);
+  if (healthRes.status !== 200) {
+    throw new Error('Backend is not available');
   }
+  console.log('Backend health check passed');
+}
 
+function registerAndLogin() {
+  const uniqueId = `${Date.now()}_${__VU}_${__ITER}`;
+  const login = `stresstest${uniqueId}`;
+  const password = 'password123';
+
+  // Register
   const registerPayload = JSON.stringify({
-    email: user.email,
-    password: user.password,
-    username: user.username,
+    username: login,
+    password: password,
+    login: login,
     groupPasscode: 'STRESSTEST',
   });
 
@@ -56,18 +51,36 @@ function authenticateUser(user) {
     headers: { 'Content-Type': 'application/json' },
   });
 
-  if (registerRes.status === 200) {
-    return JSON.parse(registerRes.body).token;
+  if (registerRes.status !== 200) {
+    console.log(`[REG] Failed for ${login}: ${registerRes.status}`);
+    return null;
   }
 
-  return null;
+  // Login to get token
+  const loginPayload = JSON.stringify({
+    login: login,
+    password: password,
+  });
+
+  const loginRes = http.post(`${API_BASE}/auth/login`, loginPayload, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (loginRes.status !== 200) {
+    console.log(`[LOGIN] Failed for ${login}: ${loginRes.status}`);
+    return null;
+  }
+
+  const responseBody = JSON.parse(loginRes.body);
+  return responseBody.access_token;
 }
 
 export default function () {
-  const user = testUsers[__VU % testUsers.length];
-  const token = authenticateUser(user);
-  
+  // Register and login for each iteration
+  const token = registerAndLogin();
+
   if (!token) {
+    console.log('[AUTH] Failed to get token, skipping iteration');
     sleep(1);
     return;
   }
@@ -79,32 +92,49 @@ export default function () {
 
   // Mix of operations
   const operations = [
-    () => http.get(`${API_BASE}/tasks`, { headers }),
-    () => http.get(`${API_BASE}/daily-tasks`, { headers }),
+    () => {
+      const res = http.get(`${API_BASE}/tasks`, { headers });
+      check(res, { 'get tasks': (r) => r.status >= 200 && r.status < 300 });
+      return res;
+    },
+    () => {
+      const res = http.get(`${API_BASE}/daily-tasks`, { headers });
+      check(res, { 'get daily tasks': (r) => r.status >= 200 && r.status < 300 });
+      return res;
+    },
     () => {
       const payload = JSON.stringify({
         description: `Stress test task ${Date.now()}`,
         dueDate: new Date(Date.now() + 86400000).toISOString(),
       });
-      return http.post(`${API_BASE}/tasks`, payload, { headers });
+      const res = http.post(`${API_BASE}/tasks`, payload, { headers });
+      check(res, { 'create task': (r) => r.status >= 200 && r.status < 300 });
+      return res;
     },
     () => {
       const payload = JSON.stringify({
         description: `Stress test daily task ${Date.now()}`,
       });
-      return http.post(`${API_BASE}/daily-tasks`, payload, { headers });
+      const res = http.post(`${API_BASE}/daily-tasks`, payload, { headers });
+      check(res, { 'create daily task': (r) => r.status >= 200 && r.status < 300 });
+      return res;
     },
-    () => http.get(`${API_BASE}/users/group`, { headers }),
-    () => http.get(`${API_BASE}/daily-tasks/stats/current-user?daysBack=7`, { headers }),
+    () => {
+      const res = http.get(`${API_BASE}/users/group`, { headers });
+      check(res, { 'get users in group': (r) => r.status >= 200 && r.status < 300 });
+      return res;
+    },
+    () => {
+      const res = http.get(`${API_BASE}/daily-tasks/stats/current-user?daysBack=7`, { headers });
+      check(res, { 'get daily task stats': (r) => r.status >= 200 && r.status < 300 });
+      return res;
+    },
   ];
 
-  // Execute random operations
+  // Execute 3 random operations per iteration
   for (let i = 0; i < 3; i++) {
     const operation = operations[Math.floor(Math.random() * operations.length)];
-    const res = operation();
-    check(res, {
-      'request successful': (r) => r.status >= 200 && r.status < 300,
-    });
+    operation();
     sleep(0.5);
   }
 }
