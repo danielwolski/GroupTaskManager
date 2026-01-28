@@ -2,7 +2,7 @@ export interface DailyTask {
     id: number;
     done: boolean;
     description: string;
-    assignee: string;
+    assigneeUsername: string;
 }
 
 export interface CreateDailyTaskRequest {

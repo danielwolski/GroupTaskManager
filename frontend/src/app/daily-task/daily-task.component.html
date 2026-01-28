@@ -20,7 +20,7 @@
             </button>
           </td>
           <td>{{ dailyTask.description }}</td>
-          <td>{{ dailyTask.assignee || '-' }}</td>
+          <td>{{ dailyTask.assigneeUsername || '-' }}</td>
           <td>
             <button class="delete-button" (click)="removeDailyTask(dailyTask.id)">
               <span class="icon-trash"></span>

@@ -1,0 +1,46 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'grouptaskmanager-microservices'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # API Gateway - main entry point
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['api-gateway:8080']
+        labels:
+          application: 'api-gateway'
+          service: 'gateway'
+
+  # Auth Service
+  - job_name: 'auth-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['auth-service:8081']
+        labels:
+          application: 'auth-service'
+          service: 'authentication'
+
+  # Task Service
+  - job_name: 'task-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['task-service:8082']
+        labels:
+          application: 'task-service'
+          service: 'tasks'
+
+  # Report Service
+  - job_name: 'report-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['report-service:8083']
+        labels:
+          application: 'report-service'
+          service: 'reporting'

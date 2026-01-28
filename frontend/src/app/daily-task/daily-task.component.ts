@@ -51,8 +51,10 @@ export class DailyTaskComponent implements OnInit {
   }
 
   loadDailyTasks(): void {
+  console.log('DailyTasks loaded:', this.dailyTasks);
     this.dailyTaskService.getDailyTasks().subscribe((data: DailyTask[]) => {
       this.dailyTasks = data;
+      console.log('DailyTasks loaded:', this.dailyTasks);
     });
   }
   
