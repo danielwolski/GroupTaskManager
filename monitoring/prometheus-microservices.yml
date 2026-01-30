@@ -9,6 +9,13 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
+  # Node Exporter - Host metrics (CPU, RAM, Disk, etc.)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          instance: 'host'
+
   # API Gateway - main entry point
   - job_name: 'api-gateway'
     metrics_path: '/actuator/prometheus'
