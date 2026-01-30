@@ -65,12 +65,23 @@ run_test() {
     #     sleep 5
     # done
     
-    # Uruchom test
+    # Uruchom test linux
+#    docker run --rm \
+#      --network=grouptaskmanager_gtm-network \
+#      -e BASE_URL=http://api-gateway:8080 \
+#      -v "$PROJECT_DIR/monitoring/k6:/scripts" \
+#      grafana/k6:latest run /scripts/$test_file
+
+    export MSYS_NO_PATHCONV=1
+    export MSYS2_ARG_CONV_EXCL="*"
+
+    # Windows
     docker run --rm \
       --network=grouptaskmanager_gtm-network \
       -e BASE_URL=http://api-gateway:8080 \
-      -v "$PROJECT_DIR/monitoring/k6:/scripts" \
+      -v "$(cygpath -w "$PROJECT_DIR/monitoring/k6"):/scripts" \
       grafana/k6:latest run /scripts/$test_file
+
     
     echo ""
     echo "✅ $test_name zakończony!"

@@ -36,7 +36,7 @@ export function setup() {
 
 function registerAndLogin() {
   const uniqueId = `${Date.now()}_${__VU}_${__ITER}`;
-  const login = `stresstest${uniqueId}`;
+  const login = `stresstest${uniqueId}@test.com`;
   const password = 'password123';
 
   // Register

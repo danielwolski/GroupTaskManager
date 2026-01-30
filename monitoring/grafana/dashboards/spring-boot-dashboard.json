@@ -19,7 +19,10 @@
   "links": [],
   "panels": [
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -55,16 +58,32 @@
       },
       "targets": [
         {
-          "expr": "rate(http_server_requests_seconds_count[5m])",
-          "legendFormat": "{{uri}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum(rate(http_server_requests_seconds_count[5m])) by (application, instance)",
+          "legendFormat": "{{application}} - {{instance}}",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum(rate(spring_cloud_gateway_requests_seconds_count[5m])) by (application, instance)",
+          "legendFormat": "Gateway - {{application}}",
+          "refId": "B"
         }
       ],
       "title": "HTTP Request Rate",
       "type": "timeseries"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -100,16 +119,32 @@
       },
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m]))",
-          "legendFormat": "{{uri}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (application, instance, le))",
+          "legendFormat": "{{application}} - p95",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum(rate(spring_cloud_gateway_requests_seconds_bucket[5m])) by (application, instance, le))",
+          "legendFormat": "Gateway - p95",
+          "refId": "B"
         }
       ],
       "title": "HTTP Request Duration (p95)",
       "type": "timeseries"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -145,16 +180,23 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
           "expr": "jvm_memory_used_bytes{area=\"heap\"}",
-          "legendFormat": "{{id}}",
+          "legendFormat": "{{application}} - {{id}}",
           "refId": "A"
         }
       ],
-      "title": "JVM Memory Usage",
+      "title": "JVM Memory Usage (Heap)",
       "type": "timeseries"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -190,8 +232,12 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
           "expr": "jvm_threads_live_threads",
-          "legendFormat": "Live Threads",
+          "legendFormat": "{{application}} - Live Threads",
           "refId": "A"
         }
       ],
@@ -199,7 +245,10 @@
       "type": "timeseries"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -235,16 +284,32 @@
       },
       "targets": [
         {
-          "expr": "rate(http_server_requests_seconds_count{status=~\"5..\"}[5m])",
-          "legendFormat": "{{uri}} - {{status}}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[5m])) by (application, instance)",
+          "legendFormat": "{{application}} - 5xx Errors",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "sum(rate(spring_cloud_gateway_requests_seconds_count{status=~\"5..\"}[5m])) by (application, instance)",
+          "legendFormat": "Gateway - 5xx Errors",
+          "refId": "B"
         }
       ],
-      "title": "HTTP Error Rate",
+      "title": "HTTP Error Rate (5xx)",
       "type": "timeseries"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -280,24 +345,136 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
           "expr": "hikari_connections_active",
-          "legendFormat": "Active Connections",
+          "legendFormat": "{{application}} - Active",
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
           "expr": "hikari_connections_idle",
-          "legendFormat": "Idle Connections",
+          "legendFormat": "{{application}} - Idle",
           "refId": "B"
         }
       ],
       "title": "Database Connection Pool",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "process_cpu_usage",
+          "legendFormat": "{{application}} - CPU Usage",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "expr": "jvm_memory_used_bytes{area=\"nonheap\"}",
+          "legendFormat": "{{application}} - {{id}}",
+          "refId": "A"
+        }
+      ],
+      "title": "JVM Memory Usage (Non-Heap)",
+      "type": "timeseries"
     }
   ],
   "refresh": "10s",
-  "schemaVersion": 27,
+  "schemaVersion": 38,
   "style": "dark",
-  "tags": ["spring-boot", "prometheus"],
+  "tags": ["spring-boot", "prometheus", "microservices"],
   "templating": {
     "list": []
   },
