@@ -1,7 +1,14 @@
 version: '3.8'
 
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
-  # ==================== DATABASES ====================
+
+  # ==================== DATABASES (RAM ONLY) ====================
   auth-db:
     image: postgres:15-alpine
     container_name: auth-db
@@ -11,8 +18,9 @@ services:
       POSTGRES_DB: authdb
     ports:
       - "5433:5432"
-    volumes:
-      - auth_db_data:/var/lib/postgresql/data
+    tmpfs:
+      - /var/lib/postgresql/data
+    logging: *default-logging
     networks:
       - gtm-network
     healthcheck:
@@ -30,8 +38,9 @@ services:
       POSTGRES_DB: taskdb
     ports:
       - "5434:5432"
-    volumes:
-      - task_db_data:/var/lib/postgresql/data
+    tmpfs:
+      - /var/lib/postgresql/data
+    logging: *default-logging
     networks:
       - gtm-network
     healthcheck:
@@ -49,8 +58,9 @@ services:
       POSTGRES_DB: reportdb
     ports:
       - "5435:5432"
-    volumes:
-      - report_db_data:/var/lib/postgresql/data
+    tmpfs:
+      - /var/lib/postgresql/data
+    logging: *default-logging
     networks:
       - gtm-network
     healthcheck:
@@ -59,7 +69,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ==================== KAFKA ====================
+  # ==================== KAFKA (RAM) ====================
   kafka:
     image: apache/kafka:3.7.0
     container_name: kafka
@@ -76,26 +86,23 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+    tmpfs:
+      - /tmp/kraft-combined-logs
     ports:
       - "9092:9092"
+    logging: *default-logging
     networks:
       - gtm-network
-    healthcheck:
-      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   # ==================== MICROSERVICES ====================
   auth-service:
-    build:
-      context: ./backend/auth-service
-      dockerfile: Dockerfile
+    build: ./backend/auth-service
     container_name: auth-service
     ports:
       - "8081:8081"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+    logging: *default-logging
     networks:
       - gtm-network
     depends_on:
@@ -103,52 +110,49 @@ services:
         condition: service_healthy
 
   task-service:
-    build:
-      context: ./backend/task-service
-      dockerfile: Dockerfile
+    build: ./backend/task-service
     container_name: task-service
     ports:
       - "8082:8082"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+    logging: *default-logging
     networks:
       - gtm-network
     depends_on:
       task-db:
         condition: service_healthy
       kafka:
-        condition: service_healthy
+        condition: service_started
       auth-service:
         condition: service_started
 
   report-service:
-    build:
-      context: ./backend/report-service
-      dockerfile: Dockerfile
+    build: ./backend/report-service
     container_name: report-service
     ports:
       - "8083:8083"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+    logging: *default-logging
     networks:
       - gtm-network
     depends_on:
       report-db:
         condition: service_healthy
       kafka:
-        condition: service_healthy
+        condition: service_started
       auth-service:
         condition: service_started
 
   api-gateway:
-    build:
-      context: ./backend/api-gateway
-      dockerfile: Dockerfile
+    build: ./backend/api-gateway
     container_name: api-gateway
     ports:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+    logging: *default-logging
     networks:
       - gtm-network
     depends_on:
@@ -156,42 +160,39 @@ services:
       - task-service
       - report-service
 
-  # ==================== FRONTEND ====================
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: frontend
+  # ==================== MONITORING ====================
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
     ports:
-      - "4200:80"
+      - "9100:9100"
+    logging: *default-logging
     networks:
       - gtm-network
-    depends_on:
-      - api-gateway
 
-  # ==================== MONITORING ====================
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=6h'
     ports:
       - "9090:9090"
     volumes:
       - ./monitoring/prometheus-microservices.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
+    logging: *default-logging
     networks:
       - gtm-network
-    depends_on:
-      - api-gateway
-      - auth-service
-      - task-service
-      - report-service
 
   grafana:
     image: grafana/grafana:latest
@@ -199,40 +200,21 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    logging: *default-logging
     networks:
       - gtm-network
     depends_on:
       - prometheus
-
-  k6:
-    image: grafana/k6:latest
-    container_name: k6
-    volumes:
-      - ./monitoring/k6:/scripts
-    networks:
-      - gtm-network
-    environment:
-      - BASE_URL=http://api-gateway:8080
-    command: run /scripts/load-test.js
-    profiles:
-      - testing
-    depends_on:
-      - api-gateway
 
 networks:
   gtm-network:
     driver: bridge
 
 volumes:
-  auth_db_data:
-  task_db_data:
-  report_db_data:
-  prometheus_data:
   grafana_data:
