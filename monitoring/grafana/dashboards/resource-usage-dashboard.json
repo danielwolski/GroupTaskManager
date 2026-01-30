@@ -82,7 +82,7 @@
         }
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
         "y": 0
@@ -176,7 +176,7 @@
         }
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 12,
         "y": 0
@@ -270,7 +270,7 @@
         }
       },
       "gridPos": {
-        "h": 8,
+        "h": 14,
         "w": 12,
         "x": 0,
         "y": 8
@@ -292,8 +292,8 @@
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "process_cpu_usage * 100",
-          "legendFormat": "{{application}}",
+          "expr": "process_cpu_usage{job=~\"api-gateway|auth-service|task-service|report-service\"} * 100",
+          "legendFormat": "{{job}}",
           "refId": "A"
         }
       ],
@@ -354,7 +354,7 @@
         }
       },
       "gridPos": {
-        "h": 8,
+        "h": 14,
         "w": 12,
         "x": 12,
         "y": 8
@@ -376,8 +376,8 @@
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "expr": "sum(jvm_memory_used_bytes) by (application)",
-          "legendFormat": "{{application}}",
+          "expr": "sum(jvm_memory_used_bytes{job=~\"api-gateway|auth-service|task-service|report-service\"}) by (job)",
+          "legendFormat": "{{job}}",
           "refId": "A"
         }
       ],

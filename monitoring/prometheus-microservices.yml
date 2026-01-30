@@ -21,33 +21,41 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['api-gateway:8080']
-        labels:
-          application: 'api-gateway'
-          service: 'gateway'
+    metric_relabel_configs:
+      - target_label: application
+        replacement: 'api-gateway'
+      - target_label: service
+        replacement: 'gateway'
 
   # Auth Service
   - job_name: 'auth-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['auth-service:8081']
-        labels:
-          application: 'auth-service'
-          service: 'authentication'
+    metric_relabel_configs:
+      - target_label: application
+        replacement: 'auth-service'
+      - target_label: service
+        replacement: 'authentication'
 
   # Task Service
   - job_name: 'task-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['task-service:8082']
-        labels:
-          application: 'task-service'
-          service: 'tasks'
+    metric_relabel_configs:
+      - target_label: application
+        replacement: 'task-service'
+      - target_label: service
+        replacement: 'tasks'
 
   # Report Service
   - job_name: 'report-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['report-service:8083']
-        labels:
-          application: 'report-service'
-          service: 'reporting'
+    metric_relabel_configs:
+      - target_label: application
+        replacement: 'report-service'
+      - target_label: service
+        replacement: 'reporting'
