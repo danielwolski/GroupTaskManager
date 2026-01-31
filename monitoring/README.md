@@ -35,7 +35,7 @@ cd /home/daniel/Desktop/gitrepos/PracaMagisterskaMonolit/GroupTaskManager
 
 ### 2. Uruchomienie całego stacku
 
-Uruchom wszystkie serwisy (backend, frontend, PostgreSQL, Prometheus, Grafana):
+Uruchom wszystkie serwisy (backend, PostgreSQL, Prometheus, Grafana):
 
 ```bash
 docker-compose up -d
@@ -44,7 +44,7 @@ docker-compose up -d
 To uruchomi:
 - **PostgreSQL** na porcie `5432`
 - **Backend** (Spring Boot) na porcie `8080`
-- **Frontend** (Angular) na porcie `4200`
+- **Node Exporter** na porcie `9100` (metryki hosta)
 - **Prometheus** na porcie `9090`
 - **Grafana** na porcie `3000`
 

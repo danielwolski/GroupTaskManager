@@ -1,3 +1,9 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   postgres:
     image: bitnami/postgresql:latest
@@ -12,6 +18,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - monitoring-network
+    logging: *default-logging
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin"]
       interval: 10s
@@ -35,6 +42,7 @@ services:
         condition: service_healthy
     networks:
       - monitoring-network
+    logging: *default-logging
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
       interval: 30s
@@ -42,17 +50,23 @@ services:
       retries: 3
       start_period: 40s
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: frontend
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
     ports:
-      - "4200:80"
-#    depends_on:
-#      - backend
+      - "9100:9100"
     networks:
       - monitoring-network
+    logging: *default-logging
 
   prometheus:
     image: prom/prometheus:latest
@@ -71,8 +85,10 @@ services:
       - prometheus_data:/prometheus
     networks:
       - monitoring-network
+    logging: *default-logging
     depends_on:
       - backend
+      - node-exporter
 
   grafana:
     image: grafana/grafana:latest
@@ -89,6 +105,7 @@ services:
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
     networks:
       - monitoring-network
+    logging: *default-logging
     depends_on:
       - prometheus
 
@@ -99,6 +116,7 @@ services:
       - ./monitoring/k6:/scripts
     networks:
       - monitoring-network
+    logging: *default-logging
     command: run /scripts/load-test.js
     profiles:
       - testing

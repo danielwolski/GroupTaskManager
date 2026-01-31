@@ -9,9 +9,13 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 cd "$PROJECT_DIR"
 
+# Docker Compose file
+DOCKER_COMPOSE_FILE="docker-compose.yml"
+
 echo "=========================================="
 echo "GroupTaskManager - Testy Obciążeniowe"
 echo "=========================================="
+echo "📦 Używanie: $DOCKER_COMPOSE_FILE"
 echo ""
 
 # Sprawdź, czy docker compose jest dostępny
@@ -43,6 +47,7 @@ run_test() {
     echo "🚀 Uruchamianie $test_name..."
     echo ""
     
+    # Uruchom test używając docker compose run (automatycznie używa sieci z docker-compose)
     docker compose run --rm k6 run /scripts/$test_file
     
     echo ""
@@ -52,21 +57,23 @@ run_test() {
 
 # Funkcja do uruchamiania serwisów
 start_services() {
-    echo "🔧 Uruchamianie serwisów..."
+    echo "🔧 Uruchamianie serwisów (Backend + Monitoring)..."
     docker compose up -d
     
     echo ""
-    echo "⏳ Oczekiwanie na uruchomienie serwisów (30 sekund)..."
-    sleep 30
+    echo "⏳ Oczekiwanie na uruchomienie serwisów (60 sekund)..."
+    sleep 60
     
     echo ""
     echo "✅ Serwisy uruchomione!"
     echo ""
     echo "Dostępne serwisy:"
-    echo "  - Backend: http://localhost:8080"
-    echo "  - Frontend: http://localhost:4200"
-    echo "  - Prometheus: http://localhost:9090"
-    echo "  - Grafana: http://localhost:3000 (admin/admin)"
+    echo "  🚀 Backend:         http://localhost:8080"
+    echo ""
+    echo "📈 Monitoring:"
+    echo "  📉 Node Exporter:   http://localhost:9100"
+    echo "  📉 Prometheus:      http://localhost:9090"
+    echo "  📊 Grafana:         http://localhost:3000 (admin/admin)"
     echo ""
 }
 
@@ -83,7 +90,9 @@ show_logs() {
     echo "1) Backend"
     echo "2) Prometheus"
     echo "3) Grafana"
-    echo "4) Wszystkie"
+    echo "4) Node Exporter"
+    echo "5) PostgreSQL"
+    echo "6) Wszystkie"
     echo ""
     read -p "Twój wybór: " log_choice
     
@@ -91,7 +100,9 @@ show_logs() {
         1) docker compose logs -f backend ;;
         2) docker compose logs -f prometheus ;;
         3) docker compose logs -f grafana ;;
-        4) docker compose logs -f ;;
+        4) docker compose logs -f node-exporter ;;
+        5) docker compose logs -f postgres ;;
+        6) docker compose logs -f ;;
         *) echo "Nieprawidłowy wybór" ;;
     esac
 }
@@ -132,4 +143,3 @@ while true; do
     read -p "Naciśnij Enter, aby kontynuować..."
     echo ""
 done
-

@@ -1,0 +1,61 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'grouptaskmanager-microservices'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter - Host metrics (CPU, RAM, Disk, etc.)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          instance: 'host'
+
+  # API Gateway - main entry point
+  - job_name: 'api-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['api-gateway:8080']
+    metric_relabel_configs:
+      - target_label: application
+        replacement: 'api-gateway'
+      - target_label: service
+        replacement: 'gateway'
+
+  # Auth Service
+  - job_name: 'auth-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['auth-service:8081']
+    metric_relabel_configs:
+      - target_label: application
+        replacement: 'auth-service'
+      - target_label: service
+        replacement: 'authentication'
+
+  # Task Service
+  - job_name: 'task-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['task-service:8082']
+    metric_relabel_configs:
+      - target_label: application
+        replacement: 'task-service'
+      - target_label: service
+        replacement: 'tasks'
+
+  # Report Service
+  - job_name: 'report-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['report-service:8083']
+    metric_relabel_configs:
+      - target_label: application
+        replacement: 'report-service'
+      - target_label: service
+        replacement: 'reporting'
