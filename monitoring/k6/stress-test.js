@@ -106,7 +106,6 @@ export function setup() {
   if (healthRes.status !== 200) {
     throw new Error('Backend is not available');
   }
-  console.log('Backend health check passed');
 }
 
 // Helper function to validate JSON response structure
@@ -185,7 +184,7 @@ function registerAndLogin() {
     authRegisterSuccess.add(1);
   } else {
     authRegisterErrors.add(1);
-    console.log(`[FAILED] AUTH-SERVICE: Registration failed - Status=${registerRes.status}, Body=${registerRes.body.substring(0, 200)}`);
+    // console.log(`[FAILED] AUTH-SERVICE: Registration failed - Status=${registerRes.status}, Body=${registerRes.body.substring(0, 200)}`);
     return null;
   }
 
@@ -230,7 +229,7 @@ function registerAndLogin() {
     authLoginSuccess.add(1);
   } else {
     authLoginErrors.add(1);
-    console.log(`[FAILED] AUTH-SERVICE: Login failed - Status=${loginRes.status}, Body=${loginRes.body.substring(0, 200)}`);
+    // console.log(`[FAILED] AUTH-SERVICE: Login failed - Status=${loginRes.status}, Body=${loginRes.body.substring(0, 200)}`);
     return null;
   }
 
@@ -292,7 +291,7 @@ export default function () {
   const authResult = registerAndLogin();
 
   if (!authResult || !authResult.token) {
-    console.log('[AUTH] Failed to get token, skipping iteration');
+    // console.log('[AUTH] Failed to get token, skipping iteration');
     sleep(1);
     return;
   }
@@ -332,7 +331,7 @@ export default function () {
           dailyTaskGetSuccess.add(1);
         } else {
           dailyTaskGetErrors.add(1);
-          console.log(`[FAILED] TASK-SERVICE: GET /daily-tasks - Status=${res.status}, Body=${res.body.substring(0, 200)}`);
+          // console.log(`[FAILED] TASK-SERVICE: GET /daily-tasks - Status=${res.status}, Body=${res.body.substring(0, 200)}`);
         }
 
         check(res, {
@@ -383,7 +382,7 @@ export default function () {
           dailyTaskCreateSuccess.add(1);
         } else {
           dailyTaskCreateErrors.add(1);
-          console.log(`[FAILED] TASK-SERVICE: POST /daily-tasks - Status=${res.status}, Body=${res.body.substring(0, 200)}`);
+          // console.log(`[FAILED] TASK-SERVICE: POST /daily-tasks - Status=${res.status}, Body=${res.body.substring(0, 200)}`);
         }
 
         check(res, {
@@ -430,7 +429,7 @@ export default function () {
           taskGetSuccess.add(1);
         } else {
           taskGetErrors.add(1);
-          console.log(`[FAILED] TASK-SERVICE: GET /tasks - Status=${res.status}, Body=${res.body.substring(0, 200)}`);
+          // console.log(`[FAILED] TASK-SERVICE: GET /tasks - Status=${res.status}, Body=${res.body.substring(0, 200)}`);
         }
 
         check(res, {
@@ -482,7 +481,7 @@ export default function () {
           taskCreateSuccess.add(1);
         } else {
           taskCreateErrors.add(1);
-          console.log(`[FAILED] TASK-SERVICE: POST /tasks - Status=${res.status}, Body=${res.body.substring(0, 200)}`);
+          // console.log(`[FAILED] TASK-SERVICE: POST /tasks - Status=${res.status}, Body=${res.body.substring(0, 200)}`);
         }
 
         check(res, {
@@ -528,7 +527,7 @@ export default function () {
       reportStatsSuccess.add(1);
     } else {
       reportStatsErrors.add(1);
-      console.log(`[FAILED] REPORT-SERVICE: GET /reports/stats/current-user - Status=${res.status}, Body=${res.body.substring(0, 200)}`);
+      // console.log(`[FAILED] REPORT-SERVICE: GET /reports/stats/current-user - Status=${res.status}, Body=${res.body.substring(0, 200)}`);
     }
 
     check(res, {
@@ -566,7 +565,7 @@ export default function () {
       reportPdfSuccess.add(1);
     } else {
       reportPdfErrors.add(1);
-      console.log(`[FAILED] REPORT-SERVICE: GET /reports/pdf - Status=${res.status}, Content-Type=${res.headers['Content-Type']}, Body length=${res.body.length}`);
+      // console.log(`[FAILED] REPORT-SERVICE: GET /reports/pdf - Status=${res.status}, Content-Type=${res.headers['Content-Type']}, Body length=${res.body.length}`);
     }
 
     check(res, {

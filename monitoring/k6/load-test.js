@@ -94,7 +94,6 @@ export function setup() {
   if (healthRes.status !== 200) {
     throw new Error('Backend is not available');
   }
-  console.log('Backend health check passed');
 }
 
 // Helper function to validate JSON response structure

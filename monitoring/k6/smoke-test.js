@@ -79,6 +79,14 @@ export const options = {
 const BASE_URL = __ENV.BASE_URL || 'http://backend:8080';
 const API_BASE = `${BASE_URL}/api`;
 
+export function setup() {
+  // Verify backend is available
+  const healthRes = http.get(`${BASE_URL}/actuator/health`);
+  if (healthRes.status !== 200) {
+    throw new Error('Backend is not available');
+  }
+}
+
 // Helper function to validate JSON response structure
 function validateJsonResponse(res, expectedFields) {
   if (res.status < 200 || res.status >= 300) {
@@ -130,7 +138,7 @@ function validateArrayResponse(res, itemValidator) {
 // Helper function to log failed requests
 function logFailure(operation, res, details = '') {
   if (res.status < 200 || res.status >= 300) {
-    console.log(`[FAILED] ${operation}: Status=${res.status}, Body=${res.body.substring(0, 200)}${details ? ', ' + details : ''}`);
+    // console.log(`[FAILED] ${operation}: Status=${res.status}, Body=${res.body.substring(0, 200)}${details ? ', ' + details : ''}`);
   }
 }
 
@@ -138,7 +146,7 @@ export default function () {
   // ==================== HEALTH CHECK ====================
   let res = http.get(`${BASE_URL}/actuator/health`);
   if (res.status !== 200) {
-    logFailure('Health Check', res);
+    // logFailure('Health Check', res);
   }
   check(res, {
     'health check status is 200': (r) => r.status === 200,
@@ -156,7 +164,7 @@ export default function () {
     groupPasscode: 'SMOKETEST',
   });
 
-  console.log(`[AUTH-SERVICE] Attempting registration for: ${login}`);
+  // console.log(`[AUTH-SERVICE] Attempting registration for: ${login}`);
 
   const registerStartTime = Date.now();
   res = http.post(`${API_BASE}/auth/register`, registerPayload, {
@@ -173,7 +181,7 @@ export default function () {
     authRegisterSuccess.add(1);
   } else {
     authRegisterErrors.add(1);
-    logFailure('AUTH-SERVICE: Registration', res, `Login=${login}`);
+    // logFailure('AUTH-SERVICE: Registration', res, `Login=${login}`);
   }
 
   check(res, {
@@ -206,7 +214,7 @@ export default function () {
       password: password,
     });
 
-    console.log(`[AUTH-SERVICE] Attempting login for: ${login}`);
+    // console.log(`[AUTH-SERVICE] Attempting login for: ${login}`);
 
     const loginStartTime = Date.now();
     res = http.post(`${API_BASE}/auth/login`, loginPayload, {
@@ -230,9 +238,9 @@ export default function () {
       const responseBody = JSON.parse(res.body);
       token = responseBody.access_token;
       userLogin = login; // Store login for X-User-Login header
-      console.log(`[AUTH-SERVICE] Login successful, token received: ${token ? 'YES' : 'NO'}`);
+      // console.log(`[AUTH-SERVICE] Login successful, token received: ${token ? 'YES' : 'NO'}`);
     } else {
-      console.log(`[AUTH-SERVICE] Login failed, skipping remaining tests`);
+      // console.log(`[AUTH-SERVICE] Login failed, skipping remaining tests`);
     }
 
     check(res, {
@@ -255,15 +263,15 @@ export default function () {
       },
     });
   } else {
-    console.log(`[AUTH-SERVICE] Registration failed, skipping login and remaining tests`);
+    // console.log(`[AUTH-SERVICE] Registration failed, skipping login and remaining tests`);
   }
 
   if (!token || !userLogin) {
-    console.log(`[SKIP] No token available, skipping authenticated tests`);
+    // console.log(`[SKIP] No token available, skipping authenticated tests`);
     return;
   }
 
-  console.log(`[AUTH] Entering authenticated section for user: ${userLogin}`);
+  // console.log(`[AUTH] Entering authenticated section for user: ${userLogin}`);
   
   const headers = {
     'Content-Type': 'application/json',
@@ -271,7 +279,7 @@ export default function () {
   };
 
   // ==================== TASK-SERVICE: Get Tasks ====================
-  console.log(`[TASK-SERVICE] Getting tasks for user: ${userLogin}`);
+  // console.log(`[TASK-SERVICE] Getting tasks for user: ${userLogin}`);
   const taskGetStartTime = Date.now();
   res = http.get(`${API_BASE}/tasks`, { 
     headers,
@@ -324,7 +332,7 @@ export default function () {
     dueDate: new Date(Date.now() + 86400000).toISOString(),
   });
 
-  console.log(`[TASK-SERVICE] Creating task for user: ${userLogin}`);
+  // console.log(`[TASK-SERVICE] Creating task for user: ${userLogin}`);
   const taskCreateStartTime = Date.now();
   res = http.post(`${API_BASE}/tasks`, taskPayload, { 
     headers,
@@ -364,7 +372,7 @@ export default function () {
   });
 
   // ==================== TASK-SERVICE: Get Daily Tasks ====================
-  console.log(`[TASK-SERVICE] Getting daily tasks for user: ${userLogin}`);
+  // console.log(`[TASK-SERVICE] Getting daily tasks for user: ${userLogin}`);
   const dailyTaskGetStartTime = Date.now();
   res = http.get(`${API_BASE}/daily-tasks`, { 
     headers,
@@ -416,7 +424,7 @@ export default function () {
     description: 'Smoke test daily task',
   });
 
-  console.log(`[TASK-SERVICE] Creating daily task for user: ${userLogin}`);
+  // console.log(`[TASK-SERVICE] Creating daily task for user: ${userLogin}`);
   const dailyTaskCreateStartTime = Date.now();
   res = http.post(`${API_BASE}/daily-tasks`, dailyTaskPayload, { 
     headers,
@@ -456,7 +464,7 @@ export default function () {
   });
 
   // ==================== REPORT-SERVICE: Get Stats ====================
-  console.log(`[REPORT-SERVICE] Getting stats for user: ${userLogin}`);
+  // console.log(`[REPORT-SERVICE] Getting stats for user: ${userLogin}`);
   const reportStatsStartTime = Date.now();
   res = http.get(`${API_BASE}/daily-tasks/stats/current-user?daysBack=7`, { 
     headers,
@@ -488,7 +496,7 @@ export default function () {
   });
 
   // ==================== REPORT-SERVICE: Generate PDF Report ====================
-  console.log(`[REPORT-SERVICE] Generating PDF report for user: ${userLogin}`);
+  // console.log(`[REPORT-SERVICE] Generating PDF report for user: ${userLogin}`);
   const reportPdfStartTime = Date.now();
   res = http.get(`${API_BASE}/daily-tasks/report/pdf?daysBack=7`, { 
     headers,
@@ -506,7 +514,7 @@ export default function () {
     reportPdfSuccess.add(1);
   } else {
     reportPdfErrors.add(1);
-    logFailure('REPORT-SERVICE: GET /reports/pdf', res, `User=${userLogin}, daysBack=7`);
+    // logFailure('REPORT-SERVICE: GET /reports/pdf', res, `User=${userLogin}, daysBack=7`);
   }
 
   check(res, {
@@ -519,8 +527,8 @@ export default function () {
   });
 
   if (res.status === 200) {
-    console.log(`[REPORT-SERVICE] PDF report generated successfully, size: ${res.body.length} bytes`);
+    // console.log(`[REPORT-SERVICE] PDF report generated successfully, size: ${res.body.length} bytes`);
   }
 
-  console.log(`[SUCCESS] All smoke tests completed for user: ${userLogin}`);
+  // console.log(`[SUCCESS] All smoke tests completed for user: ${userLogin}`);
 }
