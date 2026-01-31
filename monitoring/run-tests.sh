@@ -66,7 +66,7 @@ run_test() {
     # done
     
     # Uruchom test linux
-   docker run --rm \
+   docker run --rm -it \
      --network=grouptaskmanager_gtm-network \
      -e BASE_URL=http://api-gateway:8080 \
      -v "$PROJECT_DIR/monitoring/k6:/scripts" \
