@@ -79,6 +79,16 @@ export const options = {
 const BASE_URL = __ENV.BASE_URL || 'http://backend:8080';
 const API_BASE = `${BASE_URL}/api`;
 
+export function setup() {
+  const startTime = new Date().toISOString();
+  console.log(`[TEST START] Smoke test started at: ${startTime}`);
+}
+
+export function teardown() {
+  const endTime = new Date().toISOString();
+  console.log(`[TEST END] Smoke test completed at: ${endTime}`);
+}
+
 // Helper function to validate JSON response structure
 function validateJsonResponse(res, expectedFields) {
   if (res.status < 200 || res.status >= 300) {
