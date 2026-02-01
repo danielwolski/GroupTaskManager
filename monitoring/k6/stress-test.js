@@ -101,11 +101,21 @@ const BASE_URL = __ENV.BASE_URL || 'http://backend:8080';
 const API_BASE = `${BASE_URL}/api`;
 
 export function setup() {
+  const startTime = new Date().toISOString();
+  console.log(`[${startTime}] Test started: Stress Test`);
+  
   // Verify backend is available
   const healthRes = http.get(`${BASE_URL}/actuator/health`);
   if (healthRes.status !== 200) {
     throw new Error('Backend is not available');
   }
+  
+  return { startTime };
+}
+
+export function teardown(data) {
+  const endTime = new Date().toISOString();
+  console.log(`[${endTime}] Test completed: Stress Test`);
 }
 
 // Helper function to validate JSON response structure
