@@ -276,7 +276,7 @@ const REQUEST_WEIGHTS = {
   dailyTaskGet: 100,      // Always call (100% probability)
   dailyTaskCreate: 70,    // 70% probability
   reportStats: 60,        // 60% probability
-  reportPdf: 15,          // Only 15% probability - PDF is very resource-intensive
+  reportPdf: 0,          // Only 15% probability - PDF is very resource-intensive
 };
 
 // Helper function to generate random integer between min and max (inclusive)
@@ -593,3 +593,4 @@ export default function () {
   // Random sleep at the end to simulate user thinking time
   sleep(randomIntBetween(200, 1000) / 1000); // 0.2-1.0s
 }
+
